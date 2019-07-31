@@ -58,6 +58,15 @@ local function endGame()
     composer.gotoScene( "menu", { time=800, effect="crossFade" } )
 end
 
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+
+local function demonKilledListener( event )
+	if(event.phase == "ended") then
+		display.remove(event.target)
+	end
+end
+
 
 local function onCollision( event )
  
@@ -71,12 +80,17 @@ local function onCollision( event )
              ( obj1.myName == "slash" and obj2.myName == "demon" ) )
         then
  			--Remove demon
+ 			local temp
  			if obj1.myName == "demon" then
- 				display.remove( obj1 )
- 			
+ 				temp = obj1
             else
-            	display.remove( obj2 )
+            	temp = obj2
             end
+
+            transition.cancel(temp)
+            temp:setSequence( "killed" )
+            temp:addEventListener("sprite", demonKilledListener)
+ 			temp:play()
 
             --Increase score
             SCORE = SCORE + 1
@@ -105,18 +119,28 @@ end
 -----------------------------------------------------------------------------
 
 local function createDemon()
-	--Create sprite
-	local demon_seq_data = {
-		{name = "demon", start = 1, count = 2, time = 300}
-	}
-
-	local options =
+	local options1 =
 	{
 	    width = 32,
 	    height = 32,
 	    numFrames = 2
 	}
-	local demon_sheet = graphics.newImageSheet( "dr_demon.png", options)
+	local options2 =
+	{
+	    width = 32,
+	    height = 32,
+	    numFrames = 4
+	}
+
+	local demon_sheet = graphics.newImageSheet( "dr_demon.png", options1)
+	local demon_killed_sheet = graphics.newImageSheet( "dr_demon_killed.png", options2)
+	
+	local demon_seq_data = {
+		{name = "demon", start = 1, count = 2, time = 300, sheet = demon_sheet},
+		{name = "killed", start = 1, count = 4, time = 300, sheet = demon_killed_sheet, loopCount = 1}
+	}
+
+	
 	demon = display.newSprite(mainGroup, demon_sheet, demon_seq_data)
 
 	--Add physics to demon
@@ -167,7 +191,7 @@ function makeSlash(position, direction)
 	slash:addEventListener( "sprite", slashEndedListener )
 	slash:scale(direction, 1)
 	slash.myName = "slash"
-	physics.addBody( slash, { radius=6, isSensor=true } )
+	physics.addBody( slash, { radius=7, isSensor=true } )
 	slash:play()
 	
 end
@@ -320,7 +344,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		---physics.start()
         Runtime:addEventListener( "collision", onCollision )
-        gameLoopTimer = timer.performWithDelay( 500, createDemon, 0 )
+        gameLoopTimer = timer.performWithDelay( 2000, createDemon, 0 )
 
 	end
 end
