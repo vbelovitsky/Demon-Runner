@@ -222,14 +222,14 @@ function scene:create( event )
 	local options =
 	{
     	width = 4,
-    	height = 171,
+    	height = 169,
     	numFrames = 2
 	}
 	local stripes_sheet = graphics.newImageSheet( "dr_stripes.png", options)
 
 	stripes = display.newSprite( backGroup, stripes_sheet, stripes_seq_data)
-	stripes.x = display.contentCenterX
-	stripes.y = display.contentCenterY + 10
+	stripes.x = display.contentCenterX - 2
+	stripes.y = display.contentCenterY + 11
 	stripes:play()
 
 	------------------------Set hero------------------------------------------------
