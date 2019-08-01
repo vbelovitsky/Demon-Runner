@@ -67,6 +67,13 @@ local function demonKilledListener( event )
 	end
 end
 
+local function heroKilledListener( event )
+	if(event.phase == "ended") then
+		display.remove(event.target)
+		timer.performWithDelay( 300, endGame )
+	end
+end
+
 
 local function onCollision( event )
  
@@ -104,8 +111,12 @@ local function onCollision( event )
         	--Hero killed
         	left_button:setEnabled(false)
         	right_button:setEnabled(false)
-        	display.remove( HERO )
-            timer.performWithDelay( 200, endGame )
+        	BLADE:rotate(45)
+
+        	HERO:setSequence( "killed" )
+        	HERO:addEventListener("sprite", heroKilledListener)
+        	HERO:play()
+            
         end
 
     end
@@ -257,17 +268,27 @@ function scene:create( event )
 	stripes:play()
 
 	------------------------Set hero------------------------------------------------
-	local hero_seq_data = {
-		{name = "run", start = 1, count = 2, time = 300}
-	}
-
-	local options =
+	local options1 =
 	{
 	    width = 32,
 	    height = 32,
 	    numFrames = 2
 	}
-	local hero_sheet = graphics.newImageSheet( "dr_hero.png", options)
+	local options2 =
+	{
+	    width = 32,
+	    height = 32,
+	    numFrames = 4
+	}
+
+	local hero_sheet = graphics.newImageSheet( "dr_hero.png", options1)
+	local hero_killed_sheet = graphics.newImageSheet( "dr_hero_killed.png", options2)
+
+	local hero_seq_data = {
+		{name = "run", start = 1, count = 2, time = 300, sheet = hero_sheet},
+		{name = "killed", start = 1, count = 4, time = 300, sheet = hero_killed_sheet, loopCount = 1},
+	}
+	
 
 	HERO = display.newSprite(mainGroup, hero_sheet, hero_seq_data)
 	HERO.x = display.contentCenterX
