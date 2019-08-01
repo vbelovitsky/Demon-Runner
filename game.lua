@@ -10,13 +10,18 @@ local physics = require( "physics" )
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
-local DEAD = false
+local DEMON_TIMER = 500
+local MISS_DELAY = 1000
 local SCORE = 0
 local HERO
 local BLADE
 
 local left_button
 local right_button
+local stripes
+
+local is_hit
+
 
 local SPAWN_POINTS = {
 	{
@@ -26,7 +31,17 @@ local SPAWN_POINTS = {
 	},
 	{
 		x = 0,
+		y = HEIGHT * 3 / 8,
+		direction = -1
+	},
+	{
+		x = 0,
 		y = HEIGHT / 2,
+		direction = -1
+	},
+	{
+		x = 0,
+		y = HEIGHT * 5 / 8,
 		direction = -1
 	},
 	{
@@ -41,7 +56,17 @@ local SPAWN_POINTS = {
 	},
 	{
 		x = WIDTH,
+		y = HEIGHT * 3 / 8,
+		direction = 1
+	},
+	{
+		x = WIDTH,
 		y = HEIGHT / 2,
+		direction = 1
+	},
+	{
+		x = WIDTH,
+		y = HEIGHT * 5 / 8,
 		direction = 1
 	},
 	{
@@ -55,6 +80,7 @@ local SPAWN_POINTS = {
 -----------------------------------------------------------------------------------------------------
 
 local function endGame()
+	composer.setVariable( "finalScore", SCORE )
     composer.gotoScene( "menu", { time=800, effect="crossFade" } )
 end
 
@@ -86,6 +112,7 @@ local function onCollision( event )
         if ( ( obj1.myName == "demon" and obj2.myName == "slash" ) or
              ( obj1.myName == "slash" and obj2.myName == "demon" ) )
         then
+        	is_hit = true
  			--Remove demon
  			local temp
  			if obj1.myName == "demon" then
@@ -95,6 +122,7 @@ local function onCollision( event )
             end
 
             transition.cancel(temp)
+            temp.myName = "demon_killed"
             temp:setSequence( "killed" )
             temp:addEventListener("sprite", demonKilledListener)
  			temp:play()
@@ -111,6 +139,7 @@ local function onCollision( event )
         	--Hero killed
         	left_button:setEnabled(false)
         	right_button:setEnabled(false)
+        	stripes:pause()
         	BLADE:rotate(45)
 
         	HERO:setSequence( "killed" )
@@ -155,7 +184,7 @@ local function createDemon()
 	demon = display.newSprite(mainGroup, demon_sheet, demon_seq_data)
 
 	--Add physics to demon
-	physics.addBody( demon, { radius=16, isSensor=true } )
+	physics.addBody( demon, { radius=14, isSensor=true } )
 	demon.myName = "demon"
 
 	--Set spawn point and start moving
@@ -175,12 +204,27 @@ end
 ---------------------------------SLASH---------------------------------------
 -----------------------------------------------------------------------------
 
+local function slashDelay( event )
+    left_button:setEnabled(true)
+	right_button:setEnabled(true)
+end
+
+
 function slashEndedListener( event )
 	if(event.phase == "ended") then
 		display.remove(event.target)
 		BLADE.isVisible = true
+		if not is_hit then
+			left_button:setEnabled(false)
+			right_button:setEnabled(false)
+
+			timer.performWithDelay(MISS_DELAY, slashDelay, 1)
+		end
 	end
 end
+
+
+
 
 function makeSlash(position, direction)
 	BLADE.isVisible = false
@@ -196,13 +240,15 @@ function makeSlash(position, direction)
 	}
 	local slash_sheet = graphics.newImageSheet( "dr_slash.png", options)
 
+	is_hit = false
+
 	local slash = display.newSprite(mainGroup, slash_sheet, slash_seq_data)
 	slash.x = display.contentCenterX + position
 	slash.y = display.contentCenterY
 	slash:addEventListener( "sprite", slashEndedListener )
 	slash:scale(direction, 1)
 	slash.myName = "slash"
-	physics.addBody( slash, { radius=7, isSensor=true } )
+	physics.addBody( slash, { radius=9, isSensor=true } )
 	slash:play()
 	
 end
@@ -365,7 +411,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		---physics.start()
         Runtime:addEventListener( "collision", onCollision )
-        gameLoopTimer = timer.performWithDelay( 2000, createDemon, 0 )
+        gameLoopTimer = timer.performWithDelay( DEMON_TIMER, createDemon, 0 )
 
 	end
 end
