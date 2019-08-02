@@ -10,9 +10,11 @@ local physics = require( "physics" )
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
-local DEMON_TIMER = 500
-local MISS_DELAY = 1000
+local DEMON_DELAY = 500 --demon spawning delay, ms
+local MISS_DELAY = 1000 --delay after miss, ms
+local SKULL_CHANCE = 10 --chance to get a skull (1/SCULL_CHANCE)
 local SCORE = 0
+local SKULLS = 0
 local HERO
 local BLADE
 
@@ -22,6 +24,7 @@ local stripes
 
 local is_hit
 
+local DEMON_TABLE = {}
 
 local SPAWN_POINTS = {
 	{
@@ -86,6 +89,50 @@ end
 
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
+local function setButtonsAvailability(arg)
+	left_button:setEnabled(arg)
+	right_button:setEnabled(arg)
+end
+
+local function cancelDemonTransition()
+	for i = #DEMON_TABLE, 2, -1 do
+		local tempDemon = DEMON_TABLE[i]
+		transition.cancel(tempDemon)
+	end
+end
+
+local function skullEndedListener( obj )
+	display.remove(obj)
+end
+
+
+local function randomizedSkullCoin(demon)
+	rand = math.random(SKULL_CHANCE)
+	if (rand == 1) then
+		--Create skull sprite
+		local skull_seq_data = {
+			{name = "skull_coin", start = 1, count = 2, time = 300}
+		}	
+		local options =
+		{
+    		width = 16,
+    		height = 16,
+    		numFrames = 2
+		}
+		local skull_sheet = graphics.newImageSheet( "dr_skull_coin.png", options)
+
+		skull = display.newSprite( backGroup, skull_sheet, skull_seq_data)
+		skull.x = demon.x
+		skull.y = demon.y - 8
+		skull:play()
+
+		transition.to(skull, { time=500, delay=20, alpha=0.1, x=demon.x, y=demon.y - 30, onComplete=skullEndedListener })
+
+		--Increase scull coins
+		SKULLS = SKULLS + 1
+	end
+	
+end
 
 local function demonKilledListener( event )
 	if(event.phase == "ended") then
@@ -95,11 +142,37 @@ end
 
 local function heroKilledListener( event )
 	if(event.phase == "ended") then
-		display.remove(event.target)
+		cancelDemonTransition()
+		BLADE:rotate(45)
 		timer.performWithDelay( 300, endGame )
 	end
 end
 
+local function killDemon(temp)
+	table.remove(DEMON_TABLE, 1)
+	physics.removeBody(temp)
+	randomizedSkullCoin(temp)
+
+    transition.cancel(temp)
+    temp.myName = "demon_killed"
+    temp:setSequence( "killed" )
+    temp:addEventListener("sprite", demonKilledListener)
+	temp:play()
+
+    --Increase score
+    SCORE = SCORE + 1
+    scoreText.text = SCORE
+end
+
+local function killHero()
+	--Hero killed
+    setButtonsAvailability(false)
+    stripes:pause()
+
+    HERO:setSequence( "killed" )
+    HERO:addEventListener("sprite", heroKilledListener)
+    HERO:play()
+end
 
 local function onCollision( event )
  
@@ -121,30 +194,15 @@ local function onCollision( event )
             	temp = obj2
             end
 
-            transition.cancel(temp)
-            temp.myName = "demon_killed"
-            temp:setSequence( "killed" )
-            temp:addEventListener("sprite", demonKilledListener)
- 			temp:play()
+            killDemon(temp)
 
-            --Increase score
-            SCORE = SCORE + 1
-            scoreText.text = "" .. SCORE
         end
 
         if ( ( obj1.myName == "demon" and obj2.myName == "hero" ) or
              ( obj1.myName == "hero" and obj2.myName == "demon" ) )
         then
         	
-        	--Hero killed
-        	left_button:setEnabled(false)
-        	right_button:setEnabled(false)
-        	stripes:pause()
-        	BLADE:rotate(45)
-
-        	HERO:setSequence( "killed" )
-        	HERO:addEventListener("sprite", heroKilledListener)
-        	HERO:play()
+        	killHero()
             
         end
 
@@ -152,7 +210,6 @@ local function onCollision( event )
     
 end
 -----------------------------------------------------------------------------------------------------
-
 
 -----------------------------------------------------------------------------
 ---------------------------------DEMON---------------------------------------
@@ -194,6 +251,7 @@ local function createDemon()
 	demon:scale(spawnPoint.direction, 1)
 	demon:play()
 	transition.to( demon, { time=1500, delay=20, x=WIDTH/2, y=HEIGHT/2 } )
+	table.insert(DEMON_TABLE, demon)
 end
 
 
@@ -205,8 +263,7 @@ end
 -----------------------------------------------------------------------------
 
 local function slashDelay( event )
-    left_button:setEnabled(true)
-	right_button:setEnabled(true)
+    setButtonsAvailability(true)
 end
 
 
@@ -215,14 +272,11 @@ function slashEndedListener( event )
 		display.remove(event.target)
 		BLADE.isVisible = true
 		if not is_hit then
-			left_button:setEnabled(false)
-			right_button:setEnabled(false)
-
+			setButtonsAvailability(false)
 			timer.performWithDelay(MISS_DELAY, slashDelay, 1)
 		end
 	end
 end
-
 
 
 
@@ -363,7 +417,7 @@ function scene:create( event )
 	BLADE:play()
 
 	-----------------------Text score-------------------------------------------------
-	scoreText = display.newText( uiGroup, "" .. SCORE, WIDTH-10, 9, native.systemFont, 15 )
+	scoreText = display.newText( uiGroup, SCORE, WIDTH-15, 9, native.systemFont, 13 )
 
 	-----------------------Widget-----------------------------------------------------
 	local widget = require( "widget" )
@@ -411,7 +465,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		---physics.start()
         Runtime:addEventListener( "collision", onCollision )
-        gameLoopTimer = timer.performWithDelay( DEMON_TIMER, createDemon, 0 )
+        gameLoopTimer = timer.performWithDelay( DEMON_DELAY, createDemon, 0 )
 
 	end
 end
@@ -426,11 +480,11 @@ function scene:hide( event )
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
         timer.cancel( gameLoopTimer )
+        physics.pause()
  
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
         Runtime:removeEventListener( "collision", onCollision )
-        physics.pause()
         composer.removeScene( "game" )
     end
 
