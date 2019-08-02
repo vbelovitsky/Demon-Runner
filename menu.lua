@@ -31,14 +31,27 @@ function scene:create( event )
 	background.y = display.contentCenterY
 
 	local widget = require( "widget" )
+	local storeButton = widget.newButton(
+    	{
+        	width = 74,
+        	height = 31,
+        	defaultFile = "dr_store.png",
+    	}
+	)
+	storeButton.x = display.contentCenterX - 1
+	storeButton.y = display.contentHeight/2 + 15
+	storeButton:addEventListener( "tap", gotoGame )
+	sceneGroup:insert(storeButton)
+
+	local widget = require( "widget" )
 	local playButton = widget.newButton(
     	{
-        	width = 108,
-        	height = 48,
+        	width = 102,
+        	height = 41,
         	defaultFile = "dr_play.png",
     	}
 	)
-	playButton.x = display.contentCenterX
+	playButton.x = display.contentCenterX - 1
 	playButton.y = display.contentCenterY + display.contentHeight/4 + 5
 	playButton:addEventListener( "tap", gotoGame )
 	sceneGroup:insert(playButton)

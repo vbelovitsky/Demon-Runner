@@ -94,10 +94,10 @@ local function setButtonsAvailability(arg)
 	right_button:setEnabled(arg)
 end
 
-local function cancelDemonTransition()
+local function slowDemonTransition()
 	for i = #DEMON_TABLE, 2, -1 do
 		local tempDemon = DEMON_TABLE[i]
-		transition.cancel(tempDemon)
+		transition.to(tempDemon, {time=3000, x=WIDTH/2, y=HEIGHT/2})
 	end
 end
 
@@ -126,7 +126,7 @@ local function randomizedSkullCoin(demon)
 		skull.y = demon.y - 8
 		skull:play()
 
-		transition.to(skull, { time=500, delay=20, alpha=0.1, x=demon.x, y=demon.y - 30, onComplete=skullEndedListener })
+		transition.to(skull, { time=500, alpha=0.6, x=demon.x, y=demon.y - 30, onComplete=skullEndedListener })
 
 		--Increase scull coins
 		SKULLS = SKULLS + 1
@@ -142,7 +142,7 @@ end
 
 local function heroKilledListener( event )
 	if(event.phase == "ended") then
-		cancelDemonTransition()
+		slowDemonTransition()
 		BLADE:rotate(45)
 		timer.performWithDelay( 300, endGame )
 	end
@@ -150,7 +150,6 @@ end
 
 local function killDemon(temp)
 	table.remove(DEMON_TABLE, 1)
-	physics.removeBody(temp)
 	randomizedSkullCoin(temp)
 
     transition.cancel(temp)
