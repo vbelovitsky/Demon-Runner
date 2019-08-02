@@ -21,6 +21,7 @@ end
 -- -----------------------------------------------------------------------------------
 
 -- create()
+
 function scene:create( event )
 
 	local sceneGroup = self.view
