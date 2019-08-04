@@ -19,48 +19,76 @@ local skullsPath = system.pathForFile( "skulls.json", system.DocumentsDirectory 
 local BASE_BLADE_TABLE = {
 	{
 		blade_image = "blades/dr_blade.png",
-		description = "Very cool starting\nsword",
+		description = "Old base sword",
 		skull_image = "dr_skull_coin.png",
-		price = 100,
+		price = 10,
 		is_bought = true,
 		is_equiped = true,
 	},
 
 	{
 		blade_image = "blades/dr_blade_gold.png",
-		description = "Like starting, but\ngold",
+		description = "Old, but gold",
 		skull_image = "dr_skull_coin.png",
-		price = 10,
+		price = 0,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
-		blade_image = "blades/dr_blade.png",
-		description = "Very cool starting\nsword",
+		blade_image = "blades/dr_blade_sword.png",
+		description = "Medieval sword",
 		skull_image = "dr_skull_coin.png",
-		price = 10,
+		price = 50,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
-		blade_image = "blades/dr_blade.png",
-		description = "Very cool starting\nsword",
+		blade_image = "blades/dr_blade_hook.png",
+		description = "Hook for demons",
 		skull_image = "dr_skull_coin.png",
-		price = 10,
+		price = 50,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
-		blade_image = "blades/dr_blade.png",
-		description = "Very cool starting\nsword",
+		blade_image = "blades/dr_blade_mace.png",
+		description = "Crushing mace",
 		skull_image = "dr_skull_coin.png",
-		price = 10,
+		price = 50,
 		is_bought = false,
 		is_equiped = false,
 	},
+
+	{
+		blade_image = "blades/dr_blade_axe.png",
+		description = "Ancient frost axe",
+		skull_image = "dr_skull_coin.png",
+		price = 150,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_flame.png",
+		description = "Cursed flame sword",
+		skull_image = "dr_skull_coin.png",
+		price = 150,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_oblivion.png",
+		description = "Blade of oblivion",
+		skull_image = "dr_skull_coin.png",
+		price = 0,
+		is_bought = false,
+		is_equiped = false,
+	}
+
 }
 
 local BLADE_TABLE = {}
@@ -71,6 +99,7 @@ local skullSumText
 
 local EQUIPPED = "EQUIPPED"
 local EQUIP = "EQUIP"
+local ROWS_TABLE = {}
 
 
 local function gotoMenu()
@@ -224,10 +253,12 @@ local function buyBlade(row, blade, index )
 end
 
 local function equipBlade( row, blade, index )
+
 	for i = 1, #BLADE_TABLE do
 		if(BLADE_TABLE[i].is_equiped == true) then
 			BLADE_TABLE[i].is_equiped = false
-			tableView:getRowAtIndex(i)[6].text = EQUIP
+
+			ROWS_TABLE["row"..row.index][6].text = EQUIP --BAD
 		end
 	end
 
@@ -244,13 +275,14 @@ local function onRowTouch( event )
 	local row = event.target
 	local bladeData = BLADE_TABLE[row.index]
 
-	if(event.phase == "tap") then
+	if(event.phase == "tap" or event.phase == "release") then
 
 		if (bladeData.is_bought == false)then
 			--Try to buy
 			buyBlade(row, bladeData, row.index)
 		else
 			if (bladeData.is_equiped == false) then
+				--Equip blade
 				equipBlade(row, bladeData, row.index)
 			end
 		end
@@ -261,9 +293,9 @@ end
 
 
 local function onRowRender( event )
- 
+ 	
     local row = event.row 
-    
+
     local rowHeight = row.contentHeight
     local rowWidth = row.contentWidth
 
@@ -293,7 +325,7 @@ local function onRowRender( event )
     bladeImage.y = rowHeight * 0.51
  
  	--------------------------Blade description----------------------------------------------------------
-    local bladeDescriptionText = display.newText( row, bladeData.description, 0, 0, nil, 10 )
+    local bladeDescriptionText = display.newText( row, bladeData.description, 0, 0, nil, 9 )
     bladeDescriptionText:setFillColor( 1 )
     bladeDescriptionText.anchorX = 0
     bladeDescriptionText.x = 35
@@ -305,6 +337,7 @@ local function onRowRender( event )
     bladeLabelText.anchorX = 0
     bladeLabelText.x = 35
     bladeLabelText.y = rowHeight * 0.78
+    row.label = bladeLabelText
 
     --------------------------Skull image----------------------------------------------------------------
     local skullImage = skullSprite(bladeData.skull_image)
@@ -313,6 +346,9 @@ local function onRowRender( event )
     skullImage.anchorX = 0
     skullImage.x = 96
     skullImage.y = rowHeight * 0.77
+
+
+    ROWS_TABLE["row"..row.index] = row --BAD
 
 end
 
@@ -349,7 +385,7 @@ function scene:create( event )
     	}
 	)
 	sceneGroup:insert(backMenuButton)
-	backMenuButton.x = 20
+	backMenuButton.x = 19
 	backMenuButton.y = 10
 
 
@@ -381,6 +417,8 @@ function scene:create( event )
 	sceneGroup:insert(tableView)
  	
 	insertText()
+
+	print(tableView:getNumRows())
 
 end
 

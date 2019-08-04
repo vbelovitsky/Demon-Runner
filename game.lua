@@ -31,7 +31,7 @@ local is_hit
 
 -------------------------------For loading equipped blade----------------------------------------
 local CURRENT_BLADE = {}
-local currentBladeImage
+local currentBladeImage = "blades/dr_blade.png"
 local currentBladeSkullImage
 -------------------------------------------------------------------------------------------------
 
@@ -101,10 +101,10 @@ local function loadCurrentBlade()
         CURRENT_BLADE = json.decode( contents )
     end
 
-    if ( CURRENT_BLADE == nil) then
+    if ( CURRENT_BLADE == nil or CURRENT_BLADE.blade_image == nil) then
         CURRENT_BLADE = {
 			blade_image = "blades/dr_blade.png",
-			description = "Very cool starting\nsword",
+			description = "Old base sword",
 			skull_image = "dr_skull_coin.png",
 			price = 100,
 			is_bought = true,
@@ -448,6 +448,7 @@ function scene:create( event )
 	    height = 24,
 	    numFrames = 2
 	}
+	
 	local blade_sheet = graphics.newImageSheet(currentBladeImage, options)
 
 	BLADE = display.newSprite(mainGroup, blade_sheet, blade_seq_data)
