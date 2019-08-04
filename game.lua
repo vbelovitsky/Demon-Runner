@@ -10,6 +10,10 @@ local physics = require( "physics" )
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 -- Initialize variables
+local json = require( "json" )
+
+local currentBladePath = system.pathForFile( "current_blade.json", system.DocumentsDirectory )
+
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
 local DEMON_DELAY = 500 --demon spawning delay, ms
 local MISS_DELAY = 1000 --delay after miss, ms
@@ -24,6 +28,12 @@ local right_button
 local stripes
 
 local is_hit
+
+-------------------------------For loading equipped blade----------------------------------------
+local CURRENT_BLADE = {}
+local currentBladeImage
+local currentBladeSkullImage
+-------------------------------------------------------------------------------------------------
 
 local DEMON_TABLE = {}
 
@@ -80,6 +90,33 @@ local SPAWN_POINTS = {
 	},
 }
 
+
+-----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------
+local function loadCurrentBlade()
+	local file = io.open( currentBladePath, "r" )
+ 
+    if file then
+        local contents = file:read( "*a" )
+        io.close( file )
+        CURRENT_BLADE = json.decode( contents )
+    end
+
+    if ( CURRENT_BLADE == nil or #CURRENT_BLADE == 0 ) then
+        CURRENT_BLADE = {
+			blade_image = "dr_blade.png",
+			description = "Very cool starting\nsword",
+			skull_image = "dr_skull_coin.png",
+			price = 100,
+			is_bought = true,
+			is_equiped = true,
+		}
+    end
+
+    currentBladeImage = CURRENT_BLADE.blade_image
+    currentBladeSkullImage = CURRENT_BLADE.skull_image
+end
+
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
@@ -121,7 +158,7 @@ local function randomizedSkullCoin(demon)
     		height = 16,
     		numFrames = 2
 		}
-		local skull_sheet = graphics.newImageSheet( "dr_skull_coin.png", options)
+		local skull_sheet = graphics.newImageSheet( currentBladeSkullImage, options)
 
 		skull = display.newSprite( backGroup, skull_sheet, skull_seq_data)
 		skull.x = demon.x
@@ -333,6 +370,9 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	loadCurrentBlade()
+
 	backGroup = display.newGroup()
     sceneGroup:insert( backGroup )
  
@@ -409,7 +449,7 @@ function scene:create( event )
 	    height = 24,
 	    numFrames = 2
 	}
-	local blade_sheet = graphics.newImageSheet("dr_blade.png", options)
+	local blade_sheet = graphics.newImageSheet(currentBladeImage, options)
 
 	BLADE = display.newSprite(mainGroup, blade_sheet, blade_seq_data)
 	BLADE.x = display.contentCenterX - 20

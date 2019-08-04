@@ -47,13 +47,11 @@ local function loadAndSaveScores()
         io.close( file )
     end
 
-
-
 end
 
 local function loadAndSaveSkulls()
  	--Load
-    local file = io.open( scoresPath, "r" )
+    local file = io.open( skullsPath, "r" )
  
     if file then
         local contents = file:read( "*a" )
@@ -106,12 +104,25 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 
+	---------------Set background---------------------------------------------------
 	local background = display.newImageRect( sceneGroup, "dr_background.png",
 		display.contentWidth, display.contentHeight)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
+	---------------Set stripes for background-------------------------------------------------------------------------
+	local options =
+	{
+    	width = 4,
+    	height = 169,
+    	numFrames = 2
+	}
+	local stripes_sheet = graphics.newImageSheet( "dr_stripes.png", options)
+    local stripes = display.newImageRect(sceneGroup, stripes_sheet, 2, 4, 169)
+	stripes.x = display.contentCenterX - 2
+	stripes.y = display.contentCenterY + 11
 
+	---------------Set card--------------------------------------------------------------------------------------------
 	local card = display.newImageRect( sceneGroup, "dr_highscores_background.png",
 		110, 150)
 	card.x = display.contentCenterX - 1
@@ -125,8 +136,9 @@ function scene:create( event )
 	local skullsText = display.newText(sceneGroup, "Skulls collected:", WIDTH/2, tempY + 52,   native.systemFont, 13, "center" )
 	local skulls = display.newText(sceneGroup, composer.getVariable( "farmedSkulls" ), WIDTH/2, tempY + 65, native.systemFont, 13, "center" )
 
+	---------------Get widget------------------------------------------------------------------------------------------
 	local widget = require( "widget" )
-
+	---------------Double button---------------------------------------------------------------------------------------
 	local doubleButton = widget.newButton(
     	{
         	width = 46,
@@ -138,8 +150,7 @@ function scene:create( event )
 	doubleButton.y = HEIGHT * 4 / 5 - 3
 	doubleButton:addEventListener( "tap", gotoMenu )
 	sceneGroup:insert(doubleButton)
-
-
+	---------------Menu button-----------------------------------------------------------------------------------------
 	local menuButton = widget.newButton(
     	{
         	width = 46,
@@ -151,35 +162,6 @@ function scene:create( event )
 	menuButton.y = HEIGHT * 4 / 5 - 3
 	menuButton:addEventListener( "tap", gotoMenu )
 	sceneGroup:insert(menuButton)
-
-	
-	-- local widget = require( "widget" )
-	-- local storeButton = widget.newButton(
- --    	{
- --        	width = 74,
- --        	height = 31,
- --        	defaultFile = "dr_store.png",
- --    	}
-	-- )
-	-- storeButton.x = display.contentCenterX - 1
-	-- storeButton.y = display.contentHeight/2 + 15
-	-- storeButton:addEventListener( "tap", gotoGame )
-	-- sceneGroup:insert(storeButton)
-
-	-- local widget = require( "widget" )
-	-- local playButton = widget.newButton(
- --    	{
- --        	width = 102,
- --        	height = 41,
- --        	defaultFile = "dr_play.png",
- --    	}
-	-- )
-	-- playButton.x = display.contentCenterX - 1
-	-- playButton.y = display.contentCenterY + display.contentHeight/4 + 5
-	-- playButton:addEventListener( "tap", gotoGame )
-	-- sceneGroup:insert(playButton)
-	
-	-- Code here runs when the scene is first created but has not yet appeared on screen
 
 end
 
@@ -210,8 +192,7 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen
-
+		composer.removeScene( "highscore" )
 	end
 end
 

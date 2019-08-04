@@ -193,3 +193,59 @@ right_button.y = display.contentCenterY
 scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36 )
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local function onCollision( event )
+ 
+    if ( event.phase == "began" ) then
+ 
+        local obj1 = event.object1
+        local obj2 = event.object2
+
+        if ( ( obj1.myName == "demon" and obj2.myName == "slash" ) or
+             ( obj1.myName == "slash" and obj2.myName == "demon" ) )
+        then
+ 			--Remove demon
+
+ 			if obj1.myName == "demon" then
+ 				display.remove( obj1 )
+ 			
+            else
+            	display.remove( obj2 )
+            end
+
+            --Increase score
+            SCORE = SCORE + 1
+            scoreText.text = "" .. SCORE
+
+        elseif ( ( obj1.myName == "demon" and obj2.myName == "hero" ) or
+                 ( obj1.myName == "hero" and obj2.myName == "demon" ) )
+        then
+        	--Hero killed
+        	if ( DEAD == false ) then
+ 				DEAD = true
+            end
+        end
+
+    end
+    
+end

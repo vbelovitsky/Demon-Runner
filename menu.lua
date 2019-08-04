@@ -10,8 +10,8 @@ local function gotoGame()
     composer.gotoScene( "game", { time=400, effect="crossFade" } )
 end
  
-local function gotoHighScores()
-    composer.gotoScene( "highscores" )
+local function gotoStore()
+    composer.gotoScene( "skull", { time=200, effect="crossFade" } )
 end
 
 
@@ -41,7 +41,7 @@ function scene:create( event )
 	)
 	storeButton.x = display.contentCenterX - 1
 	storeButton.y = display.contentHeight/2 + 15
-	storeButton:addEventListener( "tap", gotoGame )
+	storeButton:addEventListener( "tap", gotoStore )
 	sceneGroup:insert(storeButton)
 
 	local widget = require( "widget" )
@@ -88,8 +88,7 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen
-
+		composer.removeScene( "menu" )
 	end
 end
 
