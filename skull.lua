@@ -21,7 +21,7 @@ local BASE_BLADE_TABLE = {
 		blade_image = "blades/dr_blade.png",
 		description = "Old base sword",
 		skull_image = "dr_skull_coin.png",
-		price = 10,
+		price = 0,
 		is_bought = true,
 		is_equiped = true,
 	},
@@ -30,7 +30,7 @@ local BASE_BLADE_TABLE = {
 		blade_image = "blades/dr_blade_gold.png",
 		description = "Old, but gold",
 		skull_image = "dr_skull_coin.png",
-		price = 0,
+		price = 100,
 		is_bought = false,
 		is_equiped = false,
 	},
@@ -84,7 +84,7 @@ local BASE_BLADE_TABLE = {
 		blade_image = "blades/dr_blade_oblivion.png",
 		description = "Blade of oblivion",
 		skull_image = "dr_skull_coin.png",
-		price = 0,
+		price = 250,
 		is_bought = false,
 		is_equiped = false,
 	}
@@ -249,6 +249,7 @@ local function buyBlade(row, blade, index )
 
 		saveBladeData()
 		saveSkulls()
+		tableView:reloadData()
 	end
 end
 
@@ -267,6 +268,7 @@ local function equipBlade( row, blade, index )
 
 	saveBladeData()
 	saveCurrentBlade()
+	tableView:reloadData()
 end
 
 
