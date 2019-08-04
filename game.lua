@@ -385,8 +385,8 @@ function scene:create( event )
     physics.setGravity( 0, 0 )
 
     -------------------------Set background-----------------------------------------
-    local background = display.newImageRect(backGroup, "dr_background.png",
-		display.contentWidth, display.contentHeight)
+    local background = display.newImageRect(backGroup, "dr_new_background.png",
+		display.contentWidth, 227)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
@@ -397,14 +397,14 @@ function scene:create( event )
 	local options =
 	{
     	width = 4,
-    	height = 169,
+    	height = 192,
     	numFrames = 2
 	}
-	local stripes_sheet = graphics.newImageSheet( "dr_stripes.png", options)
+	local stripes_sheet = graphics.newImageSheet( "dr_new_stripes.png", options)
 
 	stripes = display.newSprite( backGroup, stripes_sheet, stripes_seq_data)
 	stripes.x = display.contentCenterX - 2
-	stripes.y = display.contentCenterY + 11
+	stripes.y = display.contentCenterY + 20
 	stripes:play()
 
 	------------------------Set hero------------------------------------------------
@@ -466,7 +466,7 @@ function scene:create( event )
 	left_button = widget.newButton(
     	{
     		width = 64,
-        	height = 192,
+        	height = 227,
         	id = "left_button",
         	onEvent = handleLeftButtonEvent
     	}
@@ -480,7 +480,7 @@ function scene:create( event )
 	right_button = widget.newButton(
     	{
     		width = 64,
-        	height = 192,
+        	height = 227,
         	id = "right_button",
         	onEvent = handleRightButtonEvent
     	}

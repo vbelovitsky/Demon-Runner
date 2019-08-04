@@ -229,7 +229,7 @@ local function insertText()
 	for i = 1, #BLADE_TABLE do
 		tableView:insertRow{
             rowHeight = 48,
-            rowColor = { 0.8, 0.8, 0.8, 0.8 },
+            rowColor = { 0 },
             lineColor = { 0 },
             params = {}  -- Include custom data in the row
 		}
@@ -408,7 +408,7 @@ function scene:create( event )
 	tableView = widget.newTableView(
     	{
         x = WIDTH/2,
-     	y = HEIGHT/2 + 15,
+     	y = HEIGHT/2 + 18,
         height = HEIGHT - 10,
         width = WIDTH,
         onRowRender = onRowRender,

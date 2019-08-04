@@ -105,8 +105,8 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	---------------Set background---------------------------------------------------
-	local background = display.newImageRect( sceneGroup, "dr_background.png",
-		display.contentWidth, display.contentHeight)
+	local background = display.newImageRect( sceneGroup, "dr_new_background.png",
+		display.contentWidth, 227)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
@@ -120,7 +120,7 @@ function scene:create( event )
 	local stripes_sheet = graphics.newImageSheet( "dr_stripes.png", options)
     local stripes = display.newImageRect(sceneGroup, stripes_sheet, 2, 4, 169)
 	stripes.x = display.contentCenterX - 2
-	stripes.y = display.contentCenterY + 11
+	stripes.y = display.contentCenterY + 30
 
 	---------------Set card--------------------------------------------------------------------------------------------
 	local card = display.newImageRect( sceneGroup, "dr_highscores_background.png",

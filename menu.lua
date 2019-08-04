@@ -26,8 +26,8 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 
-	local background = display.newImageRect( sceneGroup, "dr_menu.png",
-		display.contentWidth, display.contentHeight)
+	local background = display.newImageRect( sceneGroup, "dr_new_menu.png",
+		display.contentWidth, 227)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
