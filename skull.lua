@@ -18,7 +18,7 @@ local skullsPath = system.pathForFile( "skulls.json", system.DocumentsDirectory 
 
 local BASE_BLADE_TABLE = {
 	{
-		blade_image = "dr_blade.png",
+		blade_image = "blades/dr_blade.png",
 		description = "Very cool starting\nsword",
 		skull_image = "dr_skull_coin.png",
 		price = 100,
@@ -27,7 +27,16 @@ local BASE_BLADE_TABLE = {
 	},
 
 	{
-		blade_image = "dr_blade.png",
+		blade_image = "blades/dr_blade_gold.png",
+		description = "Like starting, but\ngold",
+		skull_image = "dr_skull_coin.png",
+		price = 10,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade.png",
 		description = "Very cool starting\nsword",
 		skull_image = "dr_skull_coin.png",
 		price = 10,
@@ -36,7 +45,7 @@ local BASE_BLADE_TABLE = {
 	},
 
 	{
-		blade_image = "dr_blade.png",
+		blade_image = "blades/dr_blade.png",
 		description = "Very cool starting\nsword",
 		skull_image = "dr_skull_coin.png",
 		price = 10,
@@ -45,16 +54,7 @@ local BASE_BLADE_TABLE = {
 	},
 
 	{
-		blade_image = "dr_blade.png",
-		description = "Very cool starting\nsword",
-		skull_image = "dr_skull_coin.png",
-		price = 10,
-		is_bought = false,
-		is_equiped = false,
-	},
-
-	{
-		blade_image = "dr_blade.png",
+		blade_image = "blades/dr_blade.png",
 		description = "Very cool starting\nsword",
 		skull_image = "dr_skull_coin.png",
 		price = 10,
@@ -144,6 +144,7 @@ local function saveCurrentBlade( )
 	for i = 1, #BLADE_TABLE do
 		if(BLADE_TABLE[i].is_equiped == true) then
 			CURRENT_BLADE = BLADE_TABLE[i]
+			print(CURRENT_BLADE.blade_image)
 		end
 	end
 

@@ -95,16 +95,15 @@ local SPAWN_POINTS = {
 -----------------------------------------------------------------------------------------------------
 local function loadCurrentBlade()
 	local file = io.open( currentBladePath, "r" )
- 
     if file then
         local contents = file:read( "*a" )
         io.close( file )
         CURRENT_BLADE = json.decode( contents )
     end
 
-    if ( CURRENT_BLADE == nil or #CURRENT_BLADE == 0 ) then
+    if ( CURRENT_BLADE == nil) then
         CURRENT_BLADE = {
-			blade_image = "dr_blade.png",
+			blade_image = "blades/dr_blade.png",
 			description = "Very cool starting\nsword",
 			skull_image = "dr_skull_coin.png",
 			price = 100,
