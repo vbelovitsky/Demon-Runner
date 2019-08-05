@@ -186,7 +186,8 @@ local function heroKilledListener( event )
 	end
 end
 
-local function killDemon(temp)
+local function killDemon(temp, slash)
+	slash.one = true
 	table.remove(DEMON_TABLE, 1)
 	randomizedSkullCoin(temp)
 
@@ -225,13 +226,18 @@ local function onCollision( event )
         	is_hit = true
  			--Remove demon
  			local temp
+ 			local slash
  			if obj1.myName == "demon" then
  				temp = obj1
+ 				slash = obj2
             else
             	temp = obj2
+            	slash = obj1
             end
 
-            killDemon(temp)
+            if slash.one == false then
+            	killDemon(temp, slash)
+            end
 
         end
 
@@ -341,7 +347,8 @@ function makeSlash(position, direction)
 	slash.myName = "slash"
 	physics.addBody( slash, { radius=9, isSensor=true } )
 	slash:play()
-	
+
+	slash.one = false --To kill only one demon per slash
 end
 
 

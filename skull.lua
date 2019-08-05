@@ -392,8 +392,9 @@ function scene:create( event )
 
 
 	----------------------------------Skull sum----------------------------------------------------------------
-	skullSumText = display.newText(sceneGroup, SKULLS_SUM, 0, 0, nil, 12, "right")
+	skullSumText = display.newText(sceneGroup, SKULLS_SUM, 0, 0, native.systemFont, 12)
 	skullSumText.x = 100
+	if SKULLS_SUM / 1000 > 0 then skullSumText.x = 95 end
 	skullSumText.y = 10
 
 
