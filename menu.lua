@@ -6,6 +6,9 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+local ad
+
+
 local function gotoGame()
     composer.gotoScene( "game", { time=400, effect="crossFade" } )
 end
@@ -23,6 +26,14 @@ end
 -- create()
 
 function scene:create( event )
+
+	ad = require("ad")
+	timer.performWithDelay(30,
+		function()
+			ad.applovin.load("interstitial")
+			ad.applovin.load("rewardedVideo")
+		end
+		)
 
 	local sceneGroup = self.view
 
@@ -69,6 +80,7 @@ function scene:show( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
+		
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 	elseif ( phase == "did" ) then

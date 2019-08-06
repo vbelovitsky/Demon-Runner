@@ -9,6 +9,16 @@ local physics = require( "physics" )
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+local ATTEMPT = composer.getVariable("attept")
+if (ATTEMPT == nil) then ATTEMPT = 0 end
+
+local SCORE = composer.getVariable("score")
+if (SCORE == nil) then SCORE = 0 end
+
+local SKULLS = composer.getVariable("skulls")
+if (SKULLS == nil) then SKULLS = 0 end
+
+
 -- Initialize variables
 local json = require( "json" )
 
@@ -17,9 +27,9 @@ local currentBladePath = system.pathForFile( "current_blade.json", system.Docume
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
 local DEMON_DELAY = 500 --demon spawning delay, ms
 local MISS_DELAY = 1000 --delay after miss, ms
-local SKULL_CHANCE = 10 --chance to get a skull (1/SCULL_CHANCE)
-local SCORE = 0
-local SKULLS = 0
+local SKULL_CHANCE = 8 --chance to get a skull (1/SCULL_CHANCE)
+-- local SCORE = 0
+-- local SKULLS = 0
 local HERO
 local BLADE
 

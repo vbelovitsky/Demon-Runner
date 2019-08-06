@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 -- Initialize Ad Networks
-local ad
+local applovin
 
 
 -- Initialize variables
@@ -26,7 +26,6 @@ local skullsPath = system.pathForFile( "skulls.json", system.DocumentsDirectory 
 
 local skulls
 local doubleButton
-local menuButton
 
 local SKULLS_SUM
 local SKULLS_START
@@ -92,44 +91,65 @@ local function saveSkulls( )
     end
 end
 
-local function increaseSkulls()
-	SKULLS_SUM = SKULLS_SUM * 2
-	skulls.text = SKULLS_SUM
-	doubleButton:setEnabled(false)
-	doubleButton.alpha = 0
-	saveSkulls()
-	menuButton:setEnabled(true)
-	tap_count = 5
+
+local function adListener( event )
+ 
+    if ( event.phase == "init" ) then  -- Successful initialization
+        print( event.isError )
+		timer.performWithDelay(1000,
+			function()
+				applovin.load("rewardedVideo")
+			end
+		)
+ 
+    --elseif ( event.phase == "loaded" ) then  -- The ad was successfully loaded
+   --      if ( event.type == "interstitial") then applovin.show("interstitial") end
+ 		-- if ( event.type == "rewardedVideo") then applovin.show("rewardedVideo") end
+   --  -- elseif ( event.phase == "failed" ) then  -- The ad failed to load
+    --     print( event.type )
+    --     print( event.isError )
+    --     print( event.response )
+
+   --  elseif (event.phase == "displayed") then
+   --  		SKULLS_SUM = SKULLS_SUM * 2
+			-- skulls.text = SKULLS_SUM
+			-- doubleButton:setEnabled(false)
+			-- saveSkulls()
+			-- timer.pause()
+
+	-- elseif (event.phase == "validationSucceeded") then
+	-- 		SKULLS_SUM = SKULLS_SUM * 2
+	-- 		skulls.text = SKULLS_SUM
+	-- 		doubleButton:setEnabled(false)
+	-- 		saveSkulls()
+	-- 		timer.pause()
+	elseif (event.phase == "hidden") then
+			SKULLS_SUM = SKULLS_SUM * 2
+			skulls.text = SKULLS_SUM
+			doubleButton:setEnabled(false)
+			saveSkulls()
+			timer.pause()
+
+	elseif( event.phase == "validationExceededQuota" or event.phase == "validationRejected" or event.phase == "validationFailed" or event.phase =="failed") then
+			timer.pause()
+			timer.performWithDelay(1000,
+				function()
+					applovin.load("interstitial")
+				end
+			)
+
+    end
 end
 
 
 local function doubleSkullsAd()
 	if (tap_count < 5 and SKULLS_SUM ~= 0) then
-		if (ad.applovin.isLoaded("rewardedVideo") == true) then
-
-
-			menuButton:setEnabled(false)
-			ad.applovin.show("rewardedVideo")
-			timer.performWithDelay(1000,
-				function( )
-					increaseSkulls()
-				end
-				)
-			doubleButton.alpha = 1
+		if (applovin.isLoaded("rewardedVideo") == true) then
+			applovin.show("rewardedVideo")
 			doubleButton.y = doubleButton.y - 10
 		elseif(applovin.isLoaded("interstitial") == true) then
-
-
-			menuButton:setEnabled(false)
-			ad.applovin.show("interstitial")
-			timer.performWithDelay(1000,
-				function( )
-					increaseSkulls()
-				end
-				)
-		else
-			ad.applovin.load("rewardedVideo")
-			ad.applovin.load("interstitial")
+			applovin.show("interstitial")
+			doubleButton.y = doubleButton.y + 10
 		end
 	end
 	tap_count = tap_count + 1
@@ -151,17 +171,9 @@ end
 -- create()
 function scene:create( event )
 
-	ad = require("ad")
-	timer.performWithDelay(10,
-		function()
-			ad.applovin.load("interstitial")
-			ad.applovin.load("rewardedVideo")
-		end
-		)
-
 	-----------------------------------------------Init ads-------------------------------------------------------
 	applovin = require( "plugin.applovin" )
-	applovin.init( adListener, { sdkKey="YOUR_SDK_KEY" } )
+	applovin.init( adListener, { sdkKey="YOUR_SDK_KEY", testMode=true } )
 	--------------------------------------------------------------------------------------------------------------
 
 	loadAndSaveScores()
@@ -217,7 +229,7 @@ function scene:create( event )
 	doubleButton.y = HEIGHT * 4 / 5 - 3
 	sceneGroup:insert(doubleButton)
 	---------------Menu button-----------------------------------------------------------------------------------------
-	menuButton = widget.newButton(
+	local menuButton = widget.newButton(
     	{
         	width = 46,
         	height = 28,
@@ -251,8 +263,6 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-
-		
 	
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
