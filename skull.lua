@@ -196,8 +196,8 @@ local function bladeSprite(link)
 
 	local options =
 	{
-	    width = 24,
-	    height = 24,
+	    width = 120,
+	    height = 120,
 	    numFrames = 2
 	}
 	local blade_sheet = graphics.newImageSheet(link, options)
@@ -214,8 +214,8 @@ local function skullSprite(link)
 
 	local options =
 	{
-	    width = 16,
-	    height = 16,
+	    width = 80,
+	    height = 80,
 	    numFrames = 2
 	}
 	local skull_sheet = graphics.newImageSheet(link, options)
@@ -228,7 +228,7 @@ end
 local function insertText()
 	for i = 1, #BLADE_TABLE do
 		tableView:insertRow{
-            rowHeight = 48,
+            rowHeight = 240,
             rowColor = { 0 },
             lineColor = { 0 },
             params = {}  -- Include custom data in the row
@@ -314,7 +314,7 @@ local function onRowRender( event )
 
 
 	--------------------------Background-----------------------------------------------------------------
-    local background = display.newImageRect( row, "dr_item_background.png", 128, 48)
+    local background = display.newImageRect( row, "dr_item_background.png", 640, 240)
     background.x = rowWidth / 2
     background.y = rowHeight / 2
 
@@ -323,21 +323,21 @@ local function onRowRender( event )
     row:insert(bladeImage)
     bladeImage:play()
     bladeImage.anchorX = 0
-    bladeImage.x = 7
+    bladeImage.x = 35
     bladeImage.y = rowHeight * 0.51
  
  	--------------------------Blade description----------------------------------------------------------
-    local bladeDescriptionText = display.newText( row, bladeData.description, 0, 0, nil, 9 )
+    local bladeDescriptionText = display.newText( row, bladeData.description, 0, 0, nil, 45 )
     bladeDescriptionText:setFillColor( 1 )
     bladeDescriptionText.anchorX = 0
-    bladeDescriptionText.x = 35
+    bladeDescriptionText.x = 175
     bladeDescriptionText.y = rowHeight * 0.3
 
     --------------------------Blade label (price)--------------------------------------------------------
-    local bladeLabelText = display.newText( row, text_label, 0, 0, nil, 10 )
+    local bladeLabelText = display.newText( row, text_label, 0, 0, nil, 50 )
     bladeLabelText:setFillColor( 1 )
     bladeLabelText.anchorX = 0
-    bladeLabelText.x = 35
+    bladeLabelText.x = 175
     bladeLabelText.y = rowHeight * 0.78
     row.label = bladeLabelText
 
@@ -346,7 +346,7 @@ local function onRowRender( event )
     row:insert(skullImage)
     skullImage:play()
     skullImage.anchorX = 0
-    skullImage.x = 96
+    skullImage.x = 480
     skullImage.y = rowHeight * 0.77
 
 
@@ -380,37 +380,37 @@ function scene:create( event )
 
 	local backMenuButton = widget.newButton(
     	{
-        width = 38,
-        height = 20,
+        width = 190,
+        height = 100,
         defaultFile = "dr_menu_button.png",
         onPress = backMenuButtonPress
     	}
 	)
 	sceneGroup:insert(backMenuButton)
-	backMenuButton.x = 19
-	backMenuButton.y = 10
+	backMenuButton.x = 95
+	backMenuButton.y = 62
 
 
 	----------------------------------Skull sum----------------------------------------------------------------
-	skullSumText = display.newText(sceneGroup, SKULLS_SUM, 0, 0, native.systemFont, 12)
-	skullSumText.x = 100
-	if SKULLS_SUM / 1000 > 0 then skullSumText.x = 95 end
-	skullSumText.y = 10
+	skullSumText = display.newText(sceneGroup, SKULLS_SUM, 0, 0, native.systemFont, 60)
+	skullSumText.x = 500
+	if SKULLS_SUM / 1000 > 0 then skullSumText.x = 475 end
+	skullSumText.y = 60
 
 
 	-----------------------------------Skull sprite------------------------------------------------------------
 	local skullImage = skullSprite("dr_skull_coin.png")
     sceneGroup:insert(skullImage)
     skullImage:play()
-    skullImage.x = 117
-    skullImage.y = 10
+    skullImage.x = WIDTH - 60
+    skullImage.y = 60
 
 	-----------------------------------TableView---------------------------------------------------------------
 	tableView = widget.newTableView(
     	{
         x = WIDTH/2,
-     	y = HEIGHT/2 + 18,
-        height = HEIGHT - 10,
+     	y = HEIGHT/2 + 65,
+        height = HEIGHT - 140,
         width = WIDTH,
         onRowRender = onRowRender,
         onRowTouch = onRowTouch,

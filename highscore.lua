@@ -116,7 +116,7 @@ local function doubleSkullsAd()
 				end
 				)
 			doubleButton.alpha = 1
-			doubleButton.y = doubleButton.y - 10
+			doubleButton.y = doubleButton.y - 50
 		elseif(applovin.isLoaded("interstitial") == true) then
 
 
@@ -172,60 +172,60 @@ function scene:create( event )
 
 	---------------Set background---------------------------------------------------
 	local background = display.newImageRect( sceneGroup, "dr_new_background.png",
-		display.contentWidth, 227)
+		display.contentWidth, 1135)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
 	---------------Set stripes for background-------------------------------------------------------------------------
 	local options =
 	{
-    	width = 4,
-    	height = 169,
+    	width = 20,
+    	height = 960,
     	numFrames = 2
 	}
-	local stripes_sheet = graphics.newImageSheet( "dr_stripes.png", options)
-    local stripes = display.newImageRect(sceneGroup, stripes_sheet, 2, 4, 169)
-	stripes.x = display.contentCenterX - 2
-	stripes.y = display.contentCenterY + 30
+	local stripes_sheet = graphics.newImageSheet( "dr_new_stripes.png", options)
+    local stripes = display.newImageRect(sceneGroup, stripes_sheet, 2, 20, 960)
+	stripes.x = display.contentCenterX - 10
+	stripes.y = display.contentCenterY + 150
 
 	---------------Set card--------------------------------------------------------------------------------------------
 	local card = display.newImageRect( sceneGroup, "dr_highscores_background.png",
-		110, 150)
-	card.x = display.contentCenterX - 1
-	card.y = display.contentCenterY + 2
+		550, 750)
+	card.x = display.contentCenterX - 5
+	card.y = display.contentCenterY + 10
 
-	local tempY =  HEIGHT/5
-	local finalScoreText = display.newText(sceneGroup, "Demons killed:", WIDTH/2, tempY, native.systemFont, 13, "center" )
-	local finalScore = display.newText(sceneGroup, scoresTable[1], WIDTH/2, tempY + 13, native.systemFont, 13, "center" )
-	local recordText = display.newText(sceneGroup, "Record:", WIDTH/2, tempY + 26,   native.systemFont, 13, "center" )
-	local record = display.newText(sceneGroup, scoresTable[2], WIDTH/2, tempY + 39, native.systemFont, 13, "center" )
-	local skullsText = display.newText(sceneGroup, "Skulls collected:", WIDTH/2, tempY + 52,   native.systemFont, 13, "center" )
-	skulls = display.newText(sceneGroup, SKULLS_SUM, WIDTH/2, tempY + 65, native.systemFont, 13, "center" )
+	local tempY =  HEIGHT/4
+	local finalScoreText = display.newText(sceneGroup, "Demons killed:", WIDTH/2, tempY, native.systemFont, 65, "center" )
+	local finalScore = display.newText(sceneGroup, scoresTable[1], WIDTH/2, tempY + 65, native.systemFont, 65, "center" )
+	local recordText = display.newText(sceneGroup, "Record:", WIDTH/2, tempY + 130,   native.systemFont, 65, "center" )
+	local record = display.newText(sceneGroup, scoresTable[2], WIDTH/2, tempY + 195, native.systemFont, 65, "center" )
+	local skullsText = display.newText(sceneGroup, "Skulls collected:", WIDTH/2, tempY + 260,   native.systemFont, 65, "center" )
+	skulls = display.newText(sceneGroup, SKULLS_SUM, WIDTH/2, tempY + 325, native.systemFont, 65, "center" )
 
 	---------------Get widget------------------------------------------------------------------------------------------
 	local widget = require( "widget" )
 	---------------Double button---------------------------------------------------------------------------------------
 	doubleButton = widget.newButton(
     	{
-        	width = 46,
-        	height = 28,
+        	width = 230,
+        	height = 140,
         	defaultFile = "dr_double_button.png",
         	onRelease = doubleSkullsAd
     	}
 	)
-	doubleButton.x = WIDTH / 3 - 3
-	doubleButton.y = HEIGHT * 4 / 5 - 3
+	doubleButton.x = WIDTH / 3 - 15
+	doubleButton.y = HEIGHT * 4 / 5 - 75
 	sceneGroup:insert(doubleButton)
 	---------------Menu button-----------------------------------------------------------------------------------------
 	menuButton = widget.newButton(
     	{
-        	width = 46,
-        	height = 28,
+        	width = 230,
+        	height = 140,
         	defaultFile = "dr_menu_button.png",
     	}
 	)
-	menuButton.x = WIDTH * 2 / 3 + 2
-	menuButton.y = HEIGHT * 4 / 5 - 3
+	menuButton.x = WIDTH * 2 / 3 + 10
+	menuButton.y = HEIGHT * 4 / 5 - 75
 	menuButton:addEventListener( "tap", gotoMenu )
 	sceneGroup:insert(menuButton)
 

@@ -38,33 +38,33 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	local background = display.newImageRect( sceneGroup, "dr_new_menu.png",
-		display.contentWidth, 227)
+		display.contentWidth, 1135)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
 	local widget = require( "widget" )
 	local storeButton = widget.newButton(
     	{
-        	width = 74,
-        	height = 31,
+        	width = 370,
+        	height = 155,
         	defaultFile = "dr_store.png",
     	}
 	)
-	storeButton.x = display.contentCenterX - 1
-	storeButton.y = display.contentHeight/2 + 15
+	storeButton.x = display.contentCenterX - 7
+	storeButton.y = display.contentHeight /2 + 75
 	storeButton:addEventListener( "tap", gotoStore )
 	sceneGroup:insert(storeButton)
 
 	local widget = require( "widget" )
 	local playButton = widget.newButton(
     	{
-        	width = 102,
-        	height = 41,
+        	width = 510,
+        	height = 205,
         	defaultFile = "dr_play.png",
     	}
 	)
-	playButton.x = display.contentCenterX - 1
-	playButton.y = display.contentCenterY + display.contentHeight/4 + 5
+	playButton.x = display.contentCenterX - 6
+	playButton.y = display.contentCenterY + display.contentHeight/4
 	playButton:addEventListener( "tap", gotoGame )
 	sceneGroup:insert(playButton)
 	

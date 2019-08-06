@@ -116,7 +116,7 @@ local function loadCurrentBlade()
 			blade_image = "blades/dr_blade.png",
 			description = "Old base sword",
 			skull_image = "dr_skull_coin.png",
-			price = 100,
+			price = 0,
 			is_bought = true,
 			is_equiped = true,
 		}
@@ -163,18 +163,18 @@ local function randomizedSkullCoin(demon)
 		}	
 		local options =
 		{
-    		width = 16,
-    		height = 16,
+    		width = 80,
+    		height = 80,
     		numFrames = 2
 		}
 		local skull_sheet = graphics.newImageSheet( currentBladeSkullImage, options)
 
 		skull = display.newSprite( backGroup, skull_sheet, skull_seq_data)
 		skull.x = demon.x
-		skull.y = demon.y - 8
+		skull.y = demon.y - 40
 		skull:play()
 
-		transition.to(skull, { time=500, alpha=0.6, x=demon.x, y=demon.y - 30, onComplete=skullEndedListener })
+		transition.to(skull, { time=500, alpha=0.6, x=demon.x, y=demon.y - 150, onComplete=skullEndedListener })
 
 		--Increase scull coins
 		SKULLS = SKULLS + 1
@@ -271,14 +271,14 @@ end
 local function createDemon()
 	local options1 =
 	{
-	    width = 32,
-	    height = 32,
+	    width = 160,
+	    height = 160,
 	    numFrames = 2
 	}
 	local options2 =
 	{
-	    width = 32,
-	    height = 32,
+	    width = 160,
+	    height = 160,
 	    numFrames = 4
 	}
 
@@ -294,7 +294,7 @@ local function createDemon()
 	demon = display.newSprite(mainGroup, demon_sheet, demon_seq_data)
 
 	--Add physics to demon
-	physics.addBody( demon, { radius=14, isSensor=true } )
+	physics.addBody( demon, { radius=70, isSensor=true } )
 	demon.myName = "demon"
 
 	--Set spawn point and start moving
@@ -341,8 +341,8 @@ function makeSlash(position, direction)
 
 	local options =
 	{
-	    width = 32,
-	    height = 32,
+	    width = 160,
+	    height = 160,
 	    numFrames = 5
 	}
 	local slash_sheet = graphics.newImageSheet( "dr_slash.png", options)
@@ -355,7 +355,7 @@ function makeSlash(position, direction)
 	slash:addEventListener( "sprite", slashEndedListener )
 	slash:scale(direction, 1)
 	slash.myName = "slash"
-	physics.addBody( slash, { radius=9, isSensor=true } )
+	physics.addBody( slash, { radius=45, isSensor=true } )
 	slash:play()
 
 	slash.one = false --To kill only one demon per slash
@@ -365,13 +365,13 @@ end
 
 local function handleLeftButtonEvent( event )
  	if ( "began" == event.phase ) then
- 		makeSlash(-20, -1)
+ 		makeSlash(-100, -1)
  	end
 end
 
 local function handleRightButtonEvent( event )
  	if ( "began" == event.phase ) then
- 		makeSlash(20, 1)
+ 		makeSlash(100, 1)
  	end
 end
 
@@ -403,7 +403,7 @@ function scene:create( event )
 
     -------------------------Set background-----------------------------------------
     local background = display.newImageRect(backGroup, "dr_new_background.png",
-		display.contentWidth, 227)
+		display.contentWidth, 1135)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
@@ -413,28 +413,28 @@ function scene:create( event )
 	}	
 	local options =
 	{
-    	width = 4,
-    	height = 192,
+    	width = 20,
+    	height = 960,
     	numFrames = 2
 	}
 	local stripes_sheet = graphics.newImageSheet( "dr_new_stripes.png", options)
 
 	stripes = display.newSprite( backGroup, stripes_sheet, stripes_seq_data)
-	stripes.x = display.contentCenterX - 2
-	stripes.y = display.contentCenterY + 20
+	stripes.x = display.contentCenterX - 10
+	stripes.y = display.contentCenterY + 100
 	stripes:play()
 
 	------------------------Set hero------------------------------------------------
 	local options1 =
 	{
-	    width = 32,
-	    height = 32,
+	    width = 160,
+	    height = 160,
 	    numFrames = 2
 	}
 	local options2 =
 	{
-	    width = 32,
-	    height = 32,
+	    width = 160,
+	    height = 160,
 	    numFrames = 4
 	}
 
@@ -461,29 +461,29 @@ function scene:create( event )
 
 	local options =
 	{
-	    width = 24,
-	    height = 24,
+	    width = 120,
+	    height = 120,
 	    numFrames = 2
 	}
 	
 	local blade_sheet = graphics.newImageSheet(currentBladeImage, options)
 
 	BLADE = display.newSprite(mainGroup, blade_sheet, blade_seq_data)
-	BLADE.x = display.contentCenterX - 20
-	BLADE.y = display.contentCenterY + 10
+	BLADE.x = display.contentCenterX - 100
+	BLADE.y = display.contentCenterY + 50
 	BLADE:rotate(225)
 	BLADE:play()
 
 	-----------------------Text score-------------------------------------------------
-	scoreText = display.newText( uiGroup, SCORE, WIDTH-15, 9, native.systemFont, 13 )
+	scoreText = display.newText( uiGroup, SCORE, WIDTH-75, 45, native.systemFont, 65 )
 
 	-----------------------Widget-----------------------------------------------------
 	local widget = require( "widget" )
 	-----------------------LeftButton-------------------------------------------------
 	left_button = widget.newButton(
     	{
-    		width = 64,
-        	height = 227,
+    		width = 320,
+        	height = 1135,
         	id = "left_button",
         	onEvent = handleLeftButtonEvent
     	}
@@ -496,8 +496,8 @@ function scene:create( event )
 	-----------------------RightButton------------------------------------------------
 	right_button = widget.newButton(
     	{
-    		width = 64,
-        	height = 227,
+    		width = 320,
+        	height = 1135,
         	id = "right_button",
         	onEvent = handleRightButtonEvent
     	}
