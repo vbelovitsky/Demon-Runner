@@ -19,6 +19,7 @@ local skullsPath = system.pathForFile( "skulls.json", system.DocumentsDirectory 
 local BASE_BLADE_TABLE = {
 	{
 		blade_image = "blades/dr_blade.png",
+		slash_image = "slash/dr_slash.png",
 		description = "Old base sword",
 		skull_image = "dr_skull_coin.png",
 		price = 0,
@@ -28,15 +29,17 @@ local BASE_BLADE_TABLE = {
 
 	{
 		blade_image = "blades/dr_blade_gold.png",
+		slash_image = "slash/dr_slash_gold.png",
 		description = "Old, but gold",
 		skull_image = "dr_skull_coin.png",
-		price = 100,
+		price = 150,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
 		blade_image = "blades/dr_blade_sword.png",
+		slash_image = "slash/dr_slash.png",
 		description = "Medieval sword",
 		skull_image = "dr_skull_coin.png",
 		price = 50,
@@ -45,52 +48,106 @@ local BASE_BLADE_TABLE = {
 	},
 
 	{
-		blade_image = "blades/dr_blade_hook.png",
-		description = "Hook for demons",
+		blade_image = "blades/dr_blade_sabre.png",
+		slash_image = "slash/dr_slash.png",
+		description = "Pirate sabre",
 		skull_image = "dr_skull_coin.png",
 		price = 50,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_hook.png",
+		slash_image = "slash/dr_slash_hook.png",
+		description = "Hook for demons",
+		skull_image = "dr_skull_coin.png",
+		price = 100,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_toxic.png",
+		slash_image = "slash/dr_slash_toxic.png",
+		description = "Toxic blade",
+		skull_image = "dr_skull_coin.png",
+		price = 100,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
 		blade_image = "blades/dr_blade_mace.png",
+		slash_image = "slash/dr_slash_mace.png",
 		description = "Crushing mace",
 		skull_image = "dr_skull_coin.png",
-		price = 50,
+		price = 100,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_crystal.png",
+		slash_image = "slash/dr_slash_crystal.png",
+		description = "Crystal magic staff",
+		skull_image = "dr_skull_coin.png",
+		price = 200,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
 		blade_image = "blades/dr_blade_axe.png",
+		slash_image = "slash/dr_slash_axe.png",
 		description = "Ancient frost axe",
 		skull_image = "dr_skull_coin.png",
-		price = 150,
+		price = 200,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
 		blade_image = "blades/dr_blade_flame.png",
+		slash_image = "slash/dr_slash_flame.png",
 		description = "Cursed flame sword",
 		skull_image = "dr_skull_coin.png",
-		price = 150,
+		price = 200,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_necro.png",
+		slash_image = "slash/dr_slash_necro.png",
+		description = "Necromant skull staff",
+		skull_image = "dr_skull_coin.png",
+		price = 300,
+		is_bought = false,
+		is_equiped = false,
+	},
+
+	{
+		blade_image = "blades/dr_blade_whip.png",
+		slash_image = "slash/dr_slash_whip.png",
+		description = "Daemonic flame whip",
+		skull_image = "dr_skull_coin.png",
+		price = 300,
 		is_bought = false,
 		is_equiped = false,
 	},
 
 	{
 		blade_image = "blades/dr_blade_oblivion.png",
+		slash_image = "slash/dr_slash_oblivion.png",
 		description = "Blade of oblivion",
 		skull_image = "dr_skull_coin.png",
-		price = 250,
+		price = 500,
 		is_bought = false,
 		is_equiped = false,
 	}
 
 }
-
 local BLADE_TABLE = {}
 local CURRENT_BLADE = {}
 local skullsTable = {}
@@ -380,15 +437,15 @@ function scene:create( event )
 
 	local backMenuButton = widget.newButton(
     	{
-        width = 190,
-        height = 100,
+        width = 220,
+        height = 128,
         defaultFile = "dr_menu_button.png",
         onPress = backMenuButtonPress
     	}
 	)
 	sceneGroup:insert(backMenuButton)
-	backMenuButton.x = 95
-	backMenuButton.y = 62
+	backMenuButton.x = 112
+	backMenuButton.y = 65
 
 
 	----------------------------------Skull sum----------------------------------------------------------------

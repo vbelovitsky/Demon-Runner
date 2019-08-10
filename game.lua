@@ -5,12 +5,17 @@ local scene = composer.newScene()
 
 local physics = require( "physics" )
 
+local widget = require( "widget" )
+
+local gameLoopTimer
+
+local ad
+local isConnected
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
-local ATTEMPT = composer.getVariable("attept")
-if (ATTEMPT == nil) then ATTEMPT = 0 end
+local ATTEMPT = 0
 
 local SCORE = composer.getVariable("score")
 if (SCORE == nil) then SCORE = 0 end
@@ -23,9 +28,11 @@ if (SKULLS == nil) then SKULLS = 0 end
 local json = require( "json" )
 
 local currentBladePath = system.pathForFile( "current_blade.json", system.DocumentsDirectory )
+local scoresPath = system.pathForFile( "score.json", system.DocumentsDirectory )
+local RECORD = 0
 
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
-local DEMON_DELAY = 500 --demon spawning delay, ms
+local DEMON_DELAY = 450 --demon spawning delay, ms
 local MISS_DELAY = 1000 --delay after miss, ms
 local SKULL_CHANCE = 8 --chance to get a skull (1/SCULL_CHANCE)
 -- local SCORE = 0
@@ -36,12 +43,17 @@ local BLADE
 local left_button
 local right_button
 local stripes
+local retry_button
+local end_button
+local retry_background
+local loadingSprite
 
 local is_hit
 
 -------------------------------For loading equipped blade----------------------------------------
 local CURRENT_BLADE = {}
 local currentBladeImage = "blades/dr_blade.png"
+local currentSlashImage = "slash/dr_slash.png"
 local currentBladeSkullImage
 -------------------------------------------------------------------------------------------------
 
@@ -103,6 +115,26 @@ local SPAWN_POINTS = {
 
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
+local function loadScores()
+ 	--Load
+    local file = io.open( scoresPath, "r" )
+ 
+    if file then
+        local contents = file:read( "*a" )
+        io.close( file )
+        scoresTable = json.decode( contents )
+    end
+ 
+    if ( scoresTable == nil or #scoresTable == 0 ) then
+        scoresTable = { 0, 0,}
+    end
+
+    RECORD = scoresTable[2]
+end
+
+
+
+
 local function loadCurrentBlade()
 	local file = io.open( currentBladePath, "r" )
     if file then
@@ -114,6 +146,7 @@ local function loadCurrentBlade()
     if ( CURRENT_BLADE == nil or CURRENT_BLADE.blade_image == nil) then
         CURRENT_BLADE = {
 			blade_image = "blades/dr_blade.png",
+			slash_image = "slash/dr_slash.png",
 			description = "Old base sword",
 			skull_image = "dr_skull_coin.png",
 			price = 0,
@@ -123,6 +156,7 @@ local function loadCurrentBlade()
     end
 
     currentBladeImage = CURRENT_BLADE.blade_image
+    currentSlashImage = CURRENT_BLADE.slash_image
     currentBladeSkullImage = CURRENT_BLADE.skull_image
 end
 
@@ -142,10 +176,34 @@ local function setButtonsAvailability(arg)
 	right_button:setEnabled(arg)
 end
 
+local function reviveHero()
+	setButtonsAvailability(true)
+	stripes:play()
+	BLADE:rotate(-45)
+	HERO:setSequence("run")
+	HERO:play()
+end
+
+local function demonKilledListener( event )
+	if(event.phase == "ended") then
+		display.remove(event.target)
+	end
+end
+
 local function slowDemonTransition()
 	for i = #DEMON_TABLE, 2, -1 do
 		local tempDemon = DEMON_TABLE[i]
-		transition.to(tempDemon, {time=3000, x=WIDTH/2, y=HEIGHT/2})
+		transition.cancel(tempDemon)
+		timer.pause(gameLoopTimer)
+	end
+end
+
+local function wipeAllDemons()
+	for i = #DEMON_TABLE, 1, -1 do
+		local tempDemon = DEMON_TABLE[i]
+		tempDemon:setSequence( "killed" )
+		tempDemon:addEventListener("sprite", demonKilledListener)
+		tempDemon:play()
 	end
 end
 
@@ -182,17 +240,117 @@ local function randomizedSkullCoin(demon)
 	
 end
 
-local function demonKilledListener( event )
-	if(event.phase == "ended") then
-		display.remove(event.target)
-	end
+
+
+function makeRetry()
+
+		local isLoadedInt = ad.applovin.isLoaded("interstitial")
+		local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
+
+		if (isLoadedRew == true) then
+			loadingSprite.alpha = 1
+			loadingSprite:play()
+			ad.applovin.show("rewardedVideo")
+		elseif (isLoadedInt == true) then
+			loadingSprite.alpha = 1
+			loadingSprite:play()
+			ad.applovin.show("interstitial")
+		else
+			loadingSprite.alpha = 1
+			loadingSprite:play()
+			ad.applovin.show("interstitial")
+		end
+		retry_background.alpha = 0
+		retry_button.alpha = 0
+		end_button.alpha = 0
+		loadingSprite.alpha = 0
+
+		timer.performWithDelay(1500,
+			function()
+				wipeAllDemons()
+				reviveHero()
+				timer.resume(gameLoopTimer)
+			end
+			)
+end
+
+local function handleRetryButtonEvent( event )
+ 	makeRetry()
+end
+
+local function handleEndButtonEvent( event )
+ 	endGame()
+end
+
+local function showRetry()
+	--Retry background
+	retry_background = display.newImageRect(uiGroup, "dr_retry_background.png",
+		330, 380)
+	retry_background.x = display.contentCenterX - 10
+	retry_background.y = display.contentCenterY
+
+	--Retry button
+	retry_button = widget.newButton(
+    	{
+    		width = 210,
+        	height = 140,
+        	id = "retry_button",
+        	onRelease = handleRetryButtonEvent,
+        	defaultFile = "dr_retry_button.png"
+    	}
+	)
+	retry_button.x = display.contentCenterX - 10
+	retry_button.y = display.contentCenterY - 85
+	uiGroup:insert(retry_button)
+
+	--EndGame button
+	end_button = widget.newButton(
+    	{
+    		width = 210,
+        	height = 140,
+        	id = "end_button",
+        	onRelease = handleEndButtonEvent,
+        	defaultFile = "dr_endgame_button.png"
+    	}
+	)
+	end_button.x = display.contentCenterX - 10
+	end_button.y = display.contentCenterY + 85
+	uiGroup:insert(end_button)
+
+	--Loading sprite
+	local loading_seq_data = {
+		{name = "loading", start = 1, count = 6, time = 900}
+	}	
+	local options =
+	{
+    	width = 210,
+    	height = 120,
+    	numFrames = 6
+	}
+	local loading_sheet = graphics.newImageSheet( "dr_loading.png", options)
+
+	loadingSprite = display.newSprite( uiGroup, loading_sheet, loading_seq_data)
+	loadingSprite.x = retry_button.x
+	loadingSprite.y = retry_button.y
+	loadingSprite.alpha = 0
+
 end
 
 local function heroKilledListener( event )
 	if(event.phase == "ended") then
+		HERO:removeEventListener("sprite", heroKilledListener)
 		slowDemonTransition()
-		BLADE:rotate(45)
-		timer.performWithDelay( 300, endGame )
+		local isLoadedInt = ad.applovin.isLoaded("interstitial")
+		local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
+		if (SCORE >= RECORD/2 and ATTEMPT == 0 and RECORD >= 10 and (isConnected == true or isLoadedInt == true or isLoadedRew == true)) then
+			timer.performWithDelay(1000,
+				function()
+					showRetry()
+				end)
+			ATTEMPT = ATTEMPT + 1
+		else
+			timer.performWithDelay( 300, endGame )
+		end
 	end
 end
 
@@ -216,6 +374,7 @@ local function killHero()
 	--Hero killed
     setButtonsAvailability(false)
     stripes:pause()
+    BLADE:rotate(45)
 
     HERO:setSequence( "killed" )
     HERO:addEventListener("sprite", heroKilledListener)
@@ -345,7 +504,7 @@ function makeSlash(position, direction)
 	    height = 160,
 	    numFrames = 5
 	}
-	local slash_sheet = graphics.newImageSheet( "dr_slash.png", options)
+	local slash_sheet = graphics.newImageSheet( currentSlashImage, options)
 
 	is_hit = false
 
@@ -376,7 +535,6 @@ local function handleRightButtonEvent( event )
 end
 
 
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -387,7 +545,16 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
+	loadScores()
 	loadCurrentBlade()
+
+	isConnected = require("internet")
+
+	ad = require("ad")
+	ad.init()
+	ad.applovin.load("interstitial")
+	ad.applovin.load("rewardedVideo")
+
 
 	backGroup = display.newGroup()
     sceneGroup:insert( backGroup )
@@ -450,7 +617,7 @@ function scene:create( event )
 	HERO = display.newSprite(mainGroup, hero_sheet, hero_seq_data)
 	HERO.x = display.contentCenterX
 	HERO.y = display.contentCenterY
-	physics.addBody( HERO, { radius=16, isSensor=true } )
+	physics.addBody( HERO, { radius=75, isSensor=true } )
 	HERO.myName = "hero"
 	HERO:play()
 
@@ -477,8 +644,6 @@ function scene:create( event )
 	-----------------------Text score-------------------------------------------------
 	scoreText = display.newText( uiGroup, SCORE, WIDTH-75, 45, native.systemFont, 65 )
 
-	-----------------------Widget-----------------------------------------------------
-	local widget = require( "widget" )
 	-----------------------LeftButton-------------------------------------------------
 	left_button = widget.newButton(
     	{

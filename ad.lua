@@ -1,9 +1,8 @@
 
-
 local onAndroid = ( system.getInfo("platformName") == "Android")
 local onDevice = onAndroid
 
-local function genListener( genEvent )
+local function genListener( eventName )
 	local function listener( event )
 		
 		if ( not event.time ) then event.time = system.getTimer() end

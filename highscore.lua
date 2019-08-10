@@ -9,6 +9,7 @@ local scene = composer.newScene()
 
 -- Initialize Ad Networks
 local ad
+local isConnected
 
 
 -- Initialize variables
@@ -26,10 +27,11 @@ local skullsPath = system.pathForFile( "skulls.json", system.DocumentsDirectory 
 
 local skulls
 local doubleButton
+local loadingSprite
 local menuButton
 
 local SKULLS_SUM
-local SKULLS_START
+local SKULLS_START = 0
 
 local tap_count = 0
 
@@ -93,10 +95,16 @@ local function saveSkulls( )
 end
 
 local function increaseSkulls()
-	SKULLS_SUM = SKULLS_SUM * 2
+	if (SKULLS_SUM < 5) then
+		SKULLS_SUM = SKULLS_SUM + 5
+	else
+		SKULLS_SUM = SKULLS_SUM * 2
+	end
+	
 	skulls.text = SKULLS_SUM
 	doubleButton:setEnabled(false)
 	doubleButton.alpha = 0
+	loadingSprite.alpha = 0
 	saveSkulls()
 	menuButton:setEnabled(true)
 	tap_count = 5
@@ -104,30 +112,37 @@ end
 
 
 local function doubleSkullsAd()
-	if (tap_count < 5 and SKULLS_SUM ~= 0) then
+	if (tap_count < 5 and isConnected == true) then
 		if (ad.applovin.isLoaded("rewardedVideo") == true) then
-
-
+			loadingSprite.alpha = 1
+			loadingSprite:play()
 			menuButton:setEnabled(false)
 			ad.applovin.show("rewardedVideo")
-			timer.performWithDelay(1000,
+			timer.performWithDelay(100,
 				function( )
 					increaseSkulls()
 				end
 				)
-			doubleButton.alpha = 1
-			doubleButton.y = doubleButton.y - 50
-		elseif(applovin.isLoaded("interstitial") == true) then
-
-
+		elseif(ad.applovin.isLoaded("interstitial") == true) then
+			loadingSprite.alpha = 1
+			loadingSprite:play()
 			menuButton:setEnabled(false)
 			ad.applovin.show("interstitial")
-			timer.performWithDelay(1000,
+			timer.performWithDelay(100,
 				function( )
 					increaseSkulls()
 				end
 				)
 		else
+			loadingSprite.alpha = 1
+			loadingSprite:play()
+			menuButton:setEnabled(false)
+			ad.applovin.show("interstitial")
+			timer.performWithDelay(100,
+				function( )
+					increaseSkulls()
+				end
+				)
 			ad.applovin.load("rewardedVideo")
 			ad.applovin.load("interstitial")
 		end
@@ -151,18 +166,17 @@ end
 -- create()
 function scene:create( event )
 
-	ad = require("ad")
-	timer.performWithDelay(10,
-		function()
-			ad.applovin.load("interstitial")
-			ad.applovin.load("rewardedVideo")
-		end
-		)
+	isConnected = require("internet")
 
-	-----------------------------------------------Init ads-------------------------------------------------------
-	applovin = require( "plugin.applovin" )
-	applovin.init( adListener, { sdkKey="YOUR_SDK_KEY" } )
+	ad = require("ad")
+	ad.init()
+	ad.applovin.load("interstitial")
+	ad.applovin.load("rewardedVideo")
+
+
+	
 	--------------------------------------------------------------------------------------------------------------
+
 
 	loadAndSaveScores()
 	loadSkulls()
@@ -205,17 +219,43 @@ function scene:create( event )
 	---------------Get widget------------------------------------------------------------------------------------------
 	local widget = require( "widget" )
 	---------------Double button---------------------------------------------------------------------------------------
+	local back_button_file
+	if (SKULLS_SUM < 5) then
+		back_button_file = "dr_getmore_button.png"
+	else
+		back_button_file = "dr_double_button.png"
+	end
 	doubleButton = widget.newButton(
     	{
         	width = 230,
         	height = 140,
-        	defaultFile = "dr_double_button.png",
+        	defaultFile = back_button_file,
         	onRelease = doubleSkullsAd
     	}
 	)
 	doubleButton.x = WIDTH / 3 - 15
 	doubleButton.y = HEIGHT * 4 / 5 - 75
 	sceneGroup:insert(doubleButton)
+
+
+	---------------Loading sprite--------------------------------------------------------------------------------------
+	local loading_seq_data = {
+		{name = "loading", start = 1, count = 6, time = 900}
+	}	
+	local options =
+	{
+    	width = 210,
+    	height = 120,
+    	numFrames = 6
+	}
+	local loading_sheet = graphics.newImageSheet( "dr_loading.png", options)
+
+	loadingSprite = display.newSprite( sceneGroup, loading_sheet, loading_seq_data)
+	loadingSprite.x = doubleButton.x
+	loadingSprite.y = doubleButton.y
+	loadingSprite.alpha = 0
+
+
 	---------------Menu button-----------------------------------------------------------------------------------------
 	menuButton = widget.newButton(
     	{
@@ -256,6 +296,24 @@ function scene:show( event )
 	
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
+		randomAd = math.random(8)
+		if (randomAd == 1) then
+			local isLoadedInt = ad.applovin.isLoaded("interstitial")
+			local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
+			if (isLoadedRew == true) then
+				ad.applovin.show("rewardedVideo")
+				ad.applovin.load("rewardedVideo")
+				ad.applovin.load("interstitial")
+			elseif (isLoadedInt == true) then
+				ad.applovin.show("interstitial")
+				ad.applovin.load("rewardedVideo")
+				ad.applovin.load("interstitial")
+			else
+				ad.applovin.show("interstitial")
+				ad.applovin.load("rewardedVideo")
+				ad.applovin.load("interstitial")
+			end
+		end
 	end
 end
 

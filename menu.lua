@@ -28,12 +28,8 @@ end
 function scene:create( event )
 
 	ad = require("ad")
-	timer.performWithDelay(30,
-		function()
-			ad.applovin.load("interstitial")
-			ad.applovin.load("rewardedVideo")
-		end
-		)
+	ad.applovin.load("interstitial")
+	ad.applovin.load("rewardedVideo")
 
 	local sceneGroup = self.view
 
