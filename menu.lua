@@ -27,6 +27,9 @@ end
 
 function scene:create( event )
 
+	--SOUND
+	backgroundTrack = audio.loadStream( "audio/dr_background.wav")
+
 	ad = require("ad")
 	ad.applovin.load("interstitial")
 	ad.applovin.load("rewardedVideo")
@@ -81,6 +84,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
+		audio.play( backgroundTrack, { channel=1, loops=-1 } )
 
 	end
 end

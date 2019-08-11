@@ -9,8 +9,17 @@ local widget = require( "widget" )
 
 local gameLoopTimer
 
+--ADS
 local ad
 local isConnected
+
+--SOUNDS
+local background_sound
+local splash_sound
+local miss_sound
+local death_sound
+
+
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -49,6 +58,7 @@ local retry_background
 local loadingSprite
 
 local is_hit
+local is_killed = false
 
 -------------------------------For loading equipped blade----------------------------------------
 local CURRENT_BLADE = {}
@@ -177,6 +187,7 @@ local function setButtonsAvailability(arg)
 end
 
 local function reviveHero()
+	is_killed = false
 	setButtonsAvailability(true)
 	stripes:play()
 	BLADE:rotate(-45)
@@ -199,11 +210,14 @@ local function slowDemonTransition()
 end
 
 local function wipeAllDemons()
+	audio.play(splashSound, {channel = 4})
 	for i = #DEMON_TABLE, 1, -1 do
 		local tempDemon = DEMON_TABLE[i]
-		tempDemon:setSequence( "killed" )
-		tempDemon:addEventListener("sprite", demonKilledListener)
-		tempDemon:play()
+		if (tempDemon) then
+			tempDemon:setSequence( "killed" )
+			tempDemon:addEventListener("sprite", demonKilledListener)
+			tempDemon:play()
+		end
 	end
 end
 
@@ -309,6 +323,9 @@ local function showRetry()
     		width = 210,
         	height = 140,
         	id = "end_button",
+        	onPress = function()
+        		print("SUCCESS!!!!!!!!")
+        	end,
         	onRelease = handleEndButtonEvent,
         	defaultFile = "dr_endgame_button.png"
     	}
@@ -372,6 +389,8 @@ end
 
 local function killHero()
 	--Hero killed
+	is_killed = true
+	audio.play(deathSound, {channel = 2})
     setButtonsAvailability(false)
     stripes:pause()
     BLADE:rotate(45)
@@ -475,7 +494,9 @@ end
 -----------------------------------------------------------------------------
 
 local function slashDelay( event )
-    setButtonsAvailability(true)
+	if (is_killed == false) then
+   		setButtonsAvailability(true)
+	end
 end
 
 
@@ -484,8 +505,15 @@ function slashEndedListener( event )
 		display.remove(event.target)
 		BLADE.isVisible = true
 		if not is_hit then
+			audio.play(missSound, {channel = 3})
 			setButtonsAvailability(false)
 			timer.performWithDelay(MISS_DELAY, slashDelay, 1)
+		else
+			if audio.isChannelPlaying(4) == true then
+				audio.play(splashSound, {channel=5, duration=400})
+			else
+				audio.play(splashSound, {channel=4, duration=400})
+			end
 		end
 	end
 end
@@ -541,6 +569,12 @@ end
 
 -- create()
 function scene:create( event )
+
+	--SOUNDS
+	splashSound = audio.loadSound( "audio/dr_splash.wav" )
+    missSound = audio.loadSound( "audio/dr_miss.wav" )
+    deathSound = audio.loadSound( "audio/dr_death.wav" )
+
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
@@ -686,7 +720,7 @@ function scene:show( event )
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 	elseif ( phase == "did" ) then
-		---physics.start()
+
         Runtime:addEventListener( "collision", onCollision )
         gameLoopTimer = timer.performWithDelay( DEMON_DELAY, createDemon, 0 )
 
@@ -719,6 +753,9 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
+	audio.dispose( splashSound )
+    audio.dispose( missSound )
+    audio.dispose( deathSound )
 
 end
 
