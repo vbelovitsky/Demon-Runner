@@ -220,7 +220,7 @@ function scene:create( event )
 	stripes.y = display.contentCenterY + 150
 
 	---------------Set card--------------------------------------------------------------------------------------------
-	local card = display.newImageRect( sceneGroup, "dr_highscores_background.png",
+	local card = display.newImageRect( sceneGroup, "dr_highscores.png",
 		550, 750)
 	card.x = display.contentCenterX - 5
 	card.y = display.contentCenterY + 10
