@@ -178,14 +178,14 @@ local function setButtonsAvailability(arg)
 	right_button:setEnabled(arg)
 end
 
-local function reviveHero()
-	is_killed = false
-	setButtonsAvailability(true)
-	stripes:play()
-	BLADE:rotate(-45)
-	HERO:setSequence("run")
-	HERO:play()
-end
+-- local function reviveHero()
+-- 	is_killed = false
+-- 	setButtonsAvailability(true)
+-- 	stripes:play()
+-- 	BLADE:rotate(-45)
+-- 	HERO:setSequence("run")
+-- 	HERO:play()
+-- end
 
 local function demonKilledListener( event )
 	if(event.phase == "ended") then
@@ -196,22 +196,22 @@ end
 local function slowDemonTransition()
 	for i = #DEMON_TABLE, 2, -1 do
 		local tempDemon = DEMON_TABLE[i]
-		transition.cancel(tempDemon)
+		transition.to( tempDemon, { time=2500, delay=0, x=WIDTH/2, y=HEIGHT/2 } )
 		timer.pause(gameLoopTimer)
 	end
 end
 
-local function wipeAllDemons()
-	sound.play.splash()
-	for i = #DEMON_TABLE, 1, -1 do
-		local tempDemon = DEMON_TABLE[i]
-		if (tempDemon) then
-			tempDemon:setSequence( "killed" )
-			tempDemon:addEventListener("sprite", demonKilledListener)
-			tempDemon:play()
-		end
-	end
-end
+-- local function wipeAllDemons()
+-- 	sound.play.splash()
+-- 	for i = #DEMON_TABLE, 1, -1 do
+-- 		local tempDemon = DEMON_TABLE[i]
+-- 		if (tempDemon) then
+-- 			tempDemon:setSequence( "killed" )
+-- 			tempDemon:addEventListener("sprite", demonKilledListener)
+-- 			tempDemon:play()
+-- 		end
+-- 	end
+-- end
 
 local function skullEndedListener( obj )
 	display.remove(obj)
@@ -248,118 +248,102 @@ end
 
 
 
-function makeRetry()
+-- function makeRetry()
 
-		local isLoadedInt = ad.applovin.isLoaded("interstitial")
-		local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
+-- 		local isLoadedInt = ad.applovin.isLoaded("interstitial")
+-- 		local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
 
-		if (isLoadedRew == true) then
-			loadingSprite.alpha = 1
-			loadingSprite:play()
-			ad.applovin.show("rewardedVideo")
-		elseif (isLoadedInt == true) then
-			loadingSprite.alpha = 1
-			loadingSprite:play()
-			ad.applovin.show("interstitial")
-		else
-			loadingSprite.alpha = 1
-			loadingSprite:play()
-			ad.applovin.show("interstitial")
-		end
-		retry_background.alpha = 0
-		retry_button.alpha = 0
-		end_button.alpha = 0
-		loadingSprite.alpha = 0
+-- 		if (isLoadedRew == true) then
+-- 			loadingSprite.alpha = 1
+-- 			loadingSprite:play()
+-- 			ad.applovin.show("rewardedVideo")
+-- 		elseif (isLoadedInt == true) then
+-- 			loadingSprite.alpha = 1
+-- 			loadingSprite:play()
+-- 			ad.applovin.show("interstitial")
+-- 		else
+-- 			loadingSprite.alpha = 1
+-- 			loadingSprite:play()
+-- 			ad.applovin.show("interstitial")
+-- 		end
+-- 		retry_background.alpha = 0
+-- 		retry_button.alpha = 0
+-- 		end_button.alpha = 0
+-- 		loadingSprite.alpha = 0
 
-		timer.performWithDelay(1500,
-			function()
-				wipeAllDemons()
-				reviveHero()
-				timer.resume(gameLoopTimer)
-			end
-			)
-end
+-- 		timer.performWithDelay(1500,
+-- 			function()
+-- 				wipeAllDemons()
+-- 				reviveHero()
+-- 				timer.resume(gameLoopTimer)
+-- 			end
+-- 			)
+-- end
 
-local function handleRetryButtonEvent( event )
- 	makeRetry()
-end
+-- local function handleRetryButtonEvent( event )
+--  	makeRetry()
+-- end
 
-local function handleEndButtonEvent( event )
- 	endGame()
-end
+-- local function handleEndButtonEvent( event )
+--  	endGame()
+-- end
 
-local function showRetry()
-	--Retry background
-	retry_background = display.newImageRect(retryGroup, "dr_retry_background.png",
-		330, 380)
-	retry_background.x = display.contentCenterX - 10
-	retry_background.y = display.contentCenterY
+-- local function showRetry()
+-- 	--Retry background
+-- 	retry_background = display.newImageRect(retryGroup, "dr_retry_background.png",
+-- 		330, 380)
+-- 	retry_background.x = display.contentCenterX - 10
+-- 	retry_background.y = display.contentCenterY
 
-	--Retry button
-	retry_button = widget.newButton(
-    	{
-    		width = 210,
-        	height = 140,
-        	id = "retry_button",
-        	onRelease = handleRetryButtonEvent,
-        	defaultFile = "dr_retry_button.png"
-    	}
-	)
-	retry_button.x = display.contentCenterX - 10
-	retry_button.y = display.contentCenterY - 85
-	retryGroup:insert(retry_button)
+-- 	--Retry button
+-- 	retry_button = widget.newButton(
+--     	{
+--     		width = 210,
+--         	height = 140,
+--         	id = "retry_button",
+--         	onRelease = handleRetryButtonEvent,
+--         	defaultFile = "dr_retry_button.png"
+--     	}
+-- 	)
+-- 	retry_button.x = display.contentCenterX - 10
+-- 	retry_button.y = display.contentCenterY - 85
+-- 	retryGroup:insert(retry_button)
 
-	--EndGame button
-	end_button = widget.newButton(
-    	{
-    		width = 210,
-        	height = 140,
-        	id = "end_button",
-        	onPress = function()
-        		print("SUCCESS!!!!!!!!")
-        	end,
-        	onRelease = handleEndButtonEvent,
-        	defaultFile = "dr_endgame_button.png"
-    	}
-	)
-	end_button.x = display.contentCenterX - 10
-	end_button.y = display.contentCenterY + 85
-	retryGroup:insert(end_button)
+-- 	--EndGame button
+-- 	end_button = widget.newButton(
+--     	{
+--     		width = 210,
+--         	height = 140,
+--         	id = "end_button",
+--         	onPress = function()
+--         		print("SUCCESS!!!!!!!!")
+--         	end,
+--         	onRelease = handleEndButtonEvent,
+--         	defaultFile = "dr_endgame_button.png"
+--     	}
+-- 	)
+-- 	end_button.x = display.contentCenterX - 10
+-- 	end_button.y = display.contentCenterY + 85
+-- 	retryGroup:insert(end_button)
 
-	--Loading sprite
-	local loading_seq_data = {
-		{name = "loading", start = 1, count = 6, time = 900}
-	}	
-	local options =
-	{
-    	width = 210,
-    	height = 120,
-    	numFrames = 6
-	}
-	local loading_sheet = graphics.newImageSheet( "dr_loading.png", options)
-
-	loadingSprite = display.newSprite( retryGroup, loading_sheet, loading_seq_data)
-	loadingSprite.x = retry_button.x
-	loadingSprite.y = retry_button.y
-	loadingSprite.alpha = 0
-
-end
+-- end
 
 local function heroKilledListener( event )
 	if(event.phase == "ended") then
 		HERO:removeEventListener("sprite", heroKilledListener)
 		slowDemonTransition()
-		local isLoadedInt = ad.applovin.isLoaded("interstitial")
-		local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
-		if (SCORE >= RECORD/2 and ATTEMPT == 0 and RECORD >= 10 and (isConnected == true or isLoadedInt == true or isLoadedRew == true)) then
-			timer.performWithDelay(1000,
-				function()
-					showRetry()
-				end)
-			ATTEMPT = ATTEMPT + 1
-		else
-			timer.performWithDelay( 300, endGame )
-		end
+		timer.performWithDelay( 300, endGame ) --Comment to return retry
+		-- local isLoadedInt = ad.applovin.isLoaded("interstitial")
+		-- local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")
+		-- if (SCORE >= RECORD/2 and ATTEMPT == 0 and RECORD >= 10 and (isConnected == true or isLoadedInt == true or isLoadedRew == true)) then
+		-- 	timer.performWithDelay(1000,
+		-- 		function()
+		-- 			showRetry()
+		-- 		end)
+		-- 	ATTEMPT = ATTEMPT + 1
+		-- else
+		-- 	timer.performWithDelay( 300, endGame )
+		-- end
 	end
 end
 
