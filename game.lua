@@ -14,10 +14,7 @@ local ad
 local isConnected
 
 --SOUNDS
-local background_sound
-local splash_sound
-local miss_sound
-local death_sound
+local sound
 
 
 -- -----------------------------------------------------------------------------------
@@ -25,12 +22,6 @@ local death_sound
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local ATTEMPT = 0
-
-local SCORE = composer.getVariable("score")
-if (SCORE == nil) then SCORE = 0 end
-
-local SKULLS = composer.getVariable("skulls")
-if (SKULLS == nil) then SKULLS = 0 end
 
 
 -- Initialize variables
@@ -41,11 +32,12 @@ local scoresPath = system.pathForFile( "score.json", system.DocumentsDirectory )
 local RECORD = 0
 
 local WIDTH, HEIGHT = display.contentWidth, display.contentHeight
-local DEMON_DELAY = 450 --demon spawning delay, ms
+local DEMON_DELAY = 420 --demon spawning delay, ms
+local DEMON_SPEED = 1300 --demon speed to screen center
 local MISS_DELAY = 1000 --delay after miss, ms
 local SKULL_CHANCE = 8 --chance to get a skull (1/SCULL_CHANCE)
--- local SCORE = 0
--- local SKULLS = 0
+local SCORE = 0
+local SKULLS = 0
 local HERO
 local BLADE
 
@@ -210,7 +202,7 @@ local function slowDemonTransition()
 end
 
 local function wipeAllDemons()
-	audio.play(splashSound, {channel = 4})
+	sound.play.splash()
 	for i = #DEMON_TABLE, 1, -1 do
 		local tempDemon = DEMON_TABLE[i]
 		if (tempDemon) then
@@ -298,7 +290,7 @@ end
 
 local function showRetry()
 	--Retry background
-	retry_background = display.newImageRect(uiGroup, "dr_retry_background.png",
+	retry_background = display.newImageRect(retryGroup, "dr_retry_background.png",
 		330, 380)
 	retry_background.x = display.contentCenterX - 10
 	retry_background.y = display.contentCenterY
@@ -315,7 +307,7 @@ local function showRetry()
 	)
 	retry_button.x = display.contentCenterX - 10
 	retry_button.y = display.contentCenterY - 85
-	uiGroup:insert(retry_button)
+	retryGroup:insert(retry_button)
 
 	--EndGame button
 	end_button = widget.newButton(
@@ -332,7 +324,7 @@ local function showRetry()
 	)
 	end_button.x = display.contentCenterX - 10
 	end_button.y = display.contentCenterY + 85
-	uiGroup:insert(end_button)
+	retryGroup:insert(end_button)
 
 	--Loading sprite
 	local loading_seq_data = {
@@ -346,7 +338,7 @@ local function showRetry()
 	}
 	local loading_sheet = graphics.newImageSheet( "dr_loading.png", options)
 
-	loadingSprite = display.newSprite( uiGroup, loading_sheet, loading_seq_data)
+	loadingSprite = display.newSprite( retryGroup, loading_sheet, loading_seq_data)
 	loadingSprite.x = retry_button.x
 	loadingSprite.y = retry_button.y
 	loadingSprite.alpha = 0
@@ -390,7 +382,7 @@ end
 local function killHero()
 	--Hero killed
 	is_killed = true
-	audio.play(deathSound, {channel = 2})
+	sound.play.death()
     setButtonsAvailability(false)
     stripes:pause()
     BLADE:rotate(45)
@@ -481,7 +473,7 @@ local function createDemon()
 	demon.y = spawnPoint.y
 	demon:scale(spawnPoint.direction, 1)
 	demon:play()
-	transition.to( demon, { time=1500, delay=20, x=WIDTH/2, y=HEIGHT/2 } )
+	transition.to( demon, { time=DEMON_SPEED, delay=20, x=WIDTH/2, y=HEIGHT/2 } )
 	table.insert(DEMON_TABLE, demon)
 end
 
@@ -505,15 +497,11 @@ function slashEndedListener( event )
 		display.remove(event.target)
 		BLADE.isVisible = true
 		if not is_hit then
-			audio.play(missSound, {channel = 3})
+			sound.play.miss()
 			setButtonsAvailability(false)
 			timer.performWithDelay(MISS_DELAY, slashDelay, 1)
 		else
-			if audio.isChannelPlaying(4) == true then
-				audio.play(splashSound, {channel=5, duration=400})
-			else
-				audio.play(splashSound, {channel=4, duration=400})
-			end
+			sound.play.splash()
 		end
 	end
 end
@@ -570,11 +558,7 @@ end
 -- create()
 function scene:create( event )
 
-	--SOUNDS
-	splashSound = audio.loadSound( "audio/dr_splash.wav" )
-    missSound = audio.loadSound( "audio/dr_miss.wav" )
-    deathSound = audio.loadSound( "audio/dr_death.wav" )
-
+	sound = require("sound")
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
@@ -599,6 +583,9 @@ function scene:create( event )
     uiGroup = display.newGroup()
     sceneGroup:insert( uiGroup )
 
+    retryGroup = display.newGroup()
+    sceneGroup:insert( retryGroup )
+
     physics.start()
     physics.setGravity( 0, 0 )
 
@@ -607,6 +594,23 @@ function scene:create( event )
 		display.contentWidth, 1135)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+	-------------------------Sky demon----------------------------------------------
+	local sky_demon_seq_data = {
+			{name = "sky_demon", start = 1, count = 5, time = 500}
+	}	
+	local options =
+	{
+    	width = 50,
+    	height = 40,
+    	numFrames = 5
+	}
+	local sky_demon_sheet = graphics.newImageSheet( "dr_sky_demon.png", options)
+
+	sky_demon = display.newSprite( backGroup, sky_demon_sheet, sky_demon_seq_data)
+	sky_demon.x = 430
+	sky_demon.y = 55
+	sky_demon:play()
 
 	-------------------------Stripes on the road------------------------------------
 	local stripes_seq_data = {
@@ -753,9 +757,7 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-	audio.dispose( splashSound )
-    audio.dispose( missSound )
-    audio.dispose( deathSound )
+	sound.dispose()
 
 end
 

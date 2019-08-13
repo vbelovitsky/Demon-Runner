@@ -190,6 +190,23 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
+	---------------Sky demon--------------------------------------------------------
+	local sky_demon_seq_data = {
+			{name = "sky_demon", start = 1, count = 5, time = 500}
+	}	
+	local options =
+	{
+    	width = 50,
+    	height = 40,
+    	numFrames = 5
+	}
+	local sky_demon_sheet = graphics.newImageSheet( "dr_sky_demon.png", options)
+
+	sky_demon = display.newSprite( sceneGroup, sky_demon_sheet, sky_demon_seq_data)
+	sky_demon.x = 430
+	sky_demon.y = 55
+	sky_demon:play()
+
 	---------------Set stripes for background-------------------------------------------------------------------------
 	local options =
 	{
@@ -296,7 +313,7 @@ function scene:show( event )
 	
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-		randomAd = math.random(8)
+		randomAd = math.random(10)
 		if (randomAd == 1) then
 			local isLoadedInt = ad.applovin.isLoaded("interstitial")
 			local isLoadedRew = ad.applovin.isLoaded("rewardedVideo")

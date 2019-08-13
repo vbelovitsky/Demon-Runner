@@ -7,6 +7,7 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local ad
+local sound
 
 
 local function gotoGame()
@@ -27,8 +28,8 @@ end
 
 function scene:create( event )
 
-	--SOUND
-	backgroundTrack = audio.loadStream( "audio/dr_background.wav")
+	sound = require("sound")
+	sound.load()
 
 	ad = require("ad")
 	ad.applovin.load("interstitial")
@@ -40,6 +41,23 @@ function scene:create( event )
 		display.contentWidth, 1135)
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+	--Sky demon
+	local sky_demon_seq_data = {
+			{name = "sky_demon", start = 1, count = 5, time = 500}
+	}	
+	local options =
+	{
+    	width = 50,
+    	height = 40,
+    	numFrames = 5
+	}
+	local sky_demon_sheet = graphics.newImageSheet( "dr_sky_demon.png", options)
+
+	sky_demon = display.newSprite( sceneGroup, sky_demon_sheet, sky_demon_seq_data)
+	sky_demon.x = 430
+	sky_demon.y = 55
+	sky_demon:play()
 
 	local widget = require( "widget" )
 	local storeButton = widget.newButton(
@@ -84,8 +102,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-		audio.play( backgroundTrack, { channel=1, loops=-1 } )
-
+		sound.play.background()
 	end
 end
 

@@ -17,12 +17,14 @@ timer.performWithDelay(1000,
 	end
 )
 
-audio.reserveChannels( 1 )
-audio.setVolume( 0.01, { channel=1 } ) -- background music
-audio.setVolume( 0.3, { channel=2 } ) -- death
-audio.setVolume( 0.4, { channel=3 } ) -- miss
-audio.setVolume( 0.2, { channel=4 } ) -- splash
-audio.setVolume( 0.2, { channel=5 } ) -- splash
+-- audio.reserveChannels( 1 )
+-- audio.reserveChannels( 2 )
+-- audio.reserveChannels( 3 )
+-- audio.setVolume( 0.35, { channel=1 } ) -- background music
+-- audio.setVolume( 1, { channel=2 } ) -- death
+-- audio.setVolume( 1, { channel=3 } ) -- miss
+-- audio.setVolume( 1, { channel=4 } ) -- splash
+-- audio.setVolume( 1, { channel=5 } ) -- splash
 
 -- Go to the menu screen
 composer.gotoScene( "menu" )
